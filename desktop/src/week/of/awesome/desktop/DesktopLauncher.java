@@ -11,7 +11,7 @@ public class DesktopLauncher {
 		config.title = "Week of Awesome IV :: The Game";
 		config.width = 800;
 		config.height = 600;
-		config.resizable = false;
+		config.resizable = true;
 		new LwjglApplication(new WoAGame(), config);
 	}
 }

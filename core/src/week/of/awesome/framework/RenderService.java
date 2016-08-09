@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 
@@ -13,6 +14,7 @@ public class RenderService implements Disposable {
 	private SpriteBatch batch = new SpriteBatch();
 	
 	private OrthographicCamera camera  = new OrthographicCamera();
+	private int midX, midY;
 
 	public RenderService() {
 		gl = Gdx.gl;
@@ -22,6 +24,17 @@ public class RenderService implements Disposable {
 	public void resizeViewport(int width, int height) {
 		camera.setToOrtho(false, width, height);
 		camera.update();
+		
+		midX = width / 2;
+		midY = height / 2;
+	}
+	
+	public int getMidX() {
+		return midX;
+	}
+	
+	public int getMidY() {
+		return midY;
 	}
 	
 	public void beginFrame() {
@@ -32,6 +45,10 @@ public class RenderService implements Disposable {
 	
 	public void endFrame() {
 		batch.end();
+	}
+	
+	public void setTransformMatrix(Matrix4 m) {
+		batch.setTransformMatrix(m);
 	}
 	
 	public void drawCentered(Texture t, Vector2 pos, float width, float height, boolean flipX) {
