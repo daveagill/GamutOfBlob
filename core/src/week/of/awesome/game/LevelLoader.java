@@ -86,6 +86,9 @@ public class LevelLoader {
 			}
 		}
 		
+		// since the file is loaded from top-to-bottom we need to invert the Y coordinates
+		result.blobY = result.tiles.size()-1 - result.blobY;
+		
 		return result;
 	}
 }
