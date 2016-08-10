@@ -1,7 +1,7 @@
 <level name="So it begins">
 	<map>
 		. . . . . o o o . . .
-		@ o o o o o . o o o o
+		@ o o o o o . o o b o
 		. . . . . o o o o o o
 		. . . . . . . . o . .
 		. . . . . . . . x . .

@@ -3,6 +3,7 @@ package week.of.awesome.game;
 
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.audio.Sound;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -20,6 +21,25 @@ public class PlayGameState implements GameState {
 	private World world;
 	
 	private Deque<Direction> directionStack = new ArrayDeque<>();
+	
+	private Sound blobMovedSound;
+	private Sound collectedGeneSound;
+	private Sound switchBlobSound;
+	
+	
+	private WorldEvents eventHandler = new WorldEvents() {
+
+		@Override
+		public void onBlobMoved() {
+			blobMovedSound.play(0.5f);
+		}
+
+		@Override
+		public void onCollectedGene() {
+			collectedGeneSound.play();
+		}
+
+	};
 
 	@Override
 	public void onEnter(Services services) {
@@ -27,23 +47,25 @@ public class PlayGameState implements GameState {
 		
 		renderer = new GameRenderer(services.gfxResources, services.gfx);
 		world = new World();
+		
+		blobMovedSound = services.sfxResources.newSound("blobMoved.wav");
+		collectedGeneSound = services.sfxResources.newSound("collectedGene.wav");
+		switchBlobSound = services.sfxResources.newSound("switchBlob.wav");
 	}
 
 	@Override
 	public GameState update(float dt) {
 		if (!directionStack.isEmpty()) {
 			world.moveBlob(directionStack.getLast());
-		} else {
-			//world.moveBlob(null);
 		}
 		
-		world.update(dt);
+		world.update(dt, eventHandler);
 		return null;
 	}
 
 	@Override
 	public void render(float dt) {
-		renderer.draw(world);
+		renderer.draw(world, dt);
 	}
 
 	@Override
@@ -56,6 +78,11 @@ public class PlayGameState implements GameState {
 				if (direction != null) {
 					directionStack.addLast(direction);
 				}
+				else if (keycode == Keys.SHIFT_RIGHT || keycode == Keys.SHIFT_LEFT) {
+					world.switchBlob(keycode == Keys.SHIFT_RIGHT);
+					switchBlobSound.play();
+				}
+
 				return false;
 			}
 

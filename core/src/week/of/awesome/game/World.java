@@ -1,96 +1,87 @@
 package week.of.awesome.game;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+
 import com.badlogic.gdx.math.Vector2;
 
 public class World {
-	public static final float TILE_SIZE = 16f;
-	
-	private static final float BLOB_SPEED = 8f;
 	
 	public static enum Direction {
 		UP, DOWN, RIGHT, LEFT
 	}
 	
 	private Level level;
-	private int blobTilePosX, blobTilePosY;
-	private int blobNextTilePosX, blobNextTilePosY;
-	private float blobTween = 1f;
-	private Direction lastDirection;
 	
-	private Direction queuedInput;
+	int activeBlobIdx;
+	private List<Blob> blobs;
+	private Collection<GridPos> activeBlueGenes;
 	
 	public World() {
 		level = LevelLoader.load("level1.txt");
-		blobTilePosX = blobNextTilePosX = level.getBlobStartX();
-		blobTilePosY = blobNextTilePosY = level.getBlobStartY();
+		blobs = new ArrayList<>();
+		blobs.add(new Blob(level.blobStartPos));
+		activeBlueGenes = new HashSet<>(level.blueGenes);
 		
+		activeBlobIdx = 0;
 	}
 	
-	public Level getLevel() {
-		return level;
+	public int getMapWidth() {
+		return level.width;
 	}
 	
-	public Vector2 getBlobPosition() {
-		return new Vector2(blobTilePosX, blobTilePosY).lerp(new Vector2(blobNextTilePosX, blobNextTilePosY), blobTween).scl(TILE_SIZE);
+	public int getMapHeight() {
+		return level.height;
+	}
+	
+	public Tile tileAt(int i, int j) {
+		return level.tileAt(i, j);
+	}
+	
+	public Collection<GridPos> getBlueGenes() {
+		return activeBlueGenes;
+	}
+	
+	public Collection<Blob> getBlobs() {
+		return blobs;
+	}
+	
+	public Vector2 getActiveBlobPosition() {
+		return activeBlob().getPosition();
 	}
 	
 	public void moveBlob(Direction d) {
-		if (queuedInput == null && d != lastDirection) {
-			queuedInput = d;
-		}
+		activeBlob().enqueueMovement(d);
 	}
 	
-	public void update(float dt) {
+	public void switchBlob(boolean forward) {
+		activeBlobIdx += forward ? 1 : -1;
+		if (activeBlobIdx >= blobs.size()) { activeBlobIdx = 0; }
+		if (activeBlobIdx < 0) { activeBlobIdx = blobs.size()-1; }
+	}
 	
-		boolean transitionBeginning = blobTween == 1f;
-		if (transitionBeginning) {
-			// dequeue the input
-			Direction d = queuedInput;
-			queuedInput = null;
-			
-			if (d == null) { return; }
-			
-			int blobNextTilePosX = blobTilePosX;
-			int blobNextTilePosY = blobTilePosY;
-
-			if (d == Direction.RIGHT) {
-				blobNextTilePosX += 1;
-			}
-			else if (d == Direction.LEFT) {
-				blobNextTilePosX -= 1;
-			}
-			else if (d == Direction.UP) {
-				blobNextTilePosY += 1;
-			}
-			else if (d == Direction.DOWN) {
-				blobNextTilePosY -= 1;
-			}
-			
-			
-			// validate the transition (collision detection)
-			Tile t = level.tileAt(blobNextTilePosX, blobNextTilePosY);
-			boolean passable = t != null;
-			
-			// if not passable then rollback the transition
-			lastDirection = null;
-			if (passable) {
-				this.blobNextTilePosX = blobNextTilePosX;
-				this.blobNextTilePosY = blobNextTilePosY;
-				lastDirection = d;
-				blobTween = 0f;
-			}
-		}
+	public void update(float dt, WorldEvents events) {
+		boolean onNewTile = activeBlob().update(this, dt);
 		
-		if (blobTween < 1) {
-			blobTween = Math.min(1f, blobTween + BLOB_SPEED * dt);
+		if (onNewTile) {
+			events.onBlobMoved();
 			
-			// commit to the new location when the transition completes
-			boolean completingTransition = blobTween == 1f;
-			if (completingTransition) {
-				blobTilePosX = blobNextTilePosX;
-				blobTilePosY = blobNextTilePosY;
-				lastDirection = null;
+			GridPos blobGridPos = activeBlob().getGridPosition();
+			
+			if (activeBlueGenes.remove(blobGridPos)) {
+				events.onCollectedGene();
+				
+				// generate a new blob offset to the left
+				GridPos blueBlobPos = blobGridPos.cpy();
+				blueBlobPos.x -= 1;
+				blobs.add(new Blob(blueBlobPos));
 			}
 		}
+	}
+
+	private Blob activeBlob() {
+		return blobs.get(activeBlobIdx);
 	}
 }

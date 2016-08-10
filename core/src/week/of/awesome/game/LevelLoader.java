@@ -9,12 +9,7 @@ import com.badlogic.gdx.utils.XmlReader;
 import com.badlogic.gdx.utils.XmlReader.Element;
 
 public class LevelLoader {
-	
-	private static class MapParseResult {
-		public List<List<Tile>> tiles = new ArrayList<>();
-		public int blobX, blobY;
-	}
-	
+
 	public static Level load(String file) {
 		Element xml;
 		try {
@@ -23,20 +18,20 @@ public class LevelLoader {
 			throw new RuntimeException(e);
 		}
 		
-		String levelName = xml.getAttribute("name");
+		Level level = new Level();
+		
+		level.name = xml.getAttribute("name");
 		
 		String mapData = xml.getChildByName("map").getText();
-		MapParseResult parsedMap = parseMap(mapData);
+		parseMap(mapData, level);
 		
-		return new Level(levelName, parsedMap.tiles, parsedMap.blobX, parsedMap.blobY);
+		return level;
 	}
 	
-	private static MapParseResult parseMap(String mapData) {
-		
-		MapParseResult result = new MapParseResult();
+	private static void parseMap(String mapData, Level level) {
 		
 		List<Tile> currRow = new ArrayList<>();
-		result.tiles.add(currRow);
+		level.tiles.add(currRow);
 		
 		// parse tokens
 		int tokenIdx = 0;
@@ -44,13 +39,17 @@ public class LevelLoader {
 			char token = mapData.charAt(tokenIdx);
 			++tokenIdx;
 			
+			GridPos currGridPosition = new GridPos();
+			currGridPosition.x = currRow.size();
+			currGridPosition.y = level.tiles.size()-1;
+			
 			switch (token) {
 				// newlines are a new row
 				case '\n':
 				case '\r':
 					if (!currRow.isEmpty()) {
 						currRow = new ArrayList<>();
-						result.tiles.add(currRow);
+						level.tiles.add(currRow);
 					}
 					break;
 					
@@ -72,8 +71,7 @@ public class LevelLoader {
 				// blob spawner
 				case '@':
 					currRow.add(Tile.FLOOR);
-					result.blobX = currRow.size()-1;
-					result.blobY = result.tiles.size()-1;
+					level.blobStartPos = currGridPosition;
 					break;
 					
 				// goal (x marks the spot!)
@@ -81,14 +79,26 @@ public class LevelLoader {
 					currRow.add(Tile.GOAL);
 					break;
 					
+				// blue gene
+				case 'b':
+					currRow.add(Tile.FLOOR);
+					level.blueGenes.add(currGridPosition);
+					break;
+					
 				default:
 					throw new RuntimeException("Unknown tile token: " + token);
 			}
 		}
 		
-		// since the file is loaded from top-to-bottom we need to invert the Y coordinates
-		result.blobY = result.tiles.size()-1 - result.blobY;
+		level.width = currRow.size();
+		level.height = level.tiles.size();
 		
-		return result;
+		// sicne the level is loaded from top-to-bottom need to invert all y-coords
+		invertY(level.blobStartPos, level);
+		level.blueGenes.forEach(pos -> invertY(pos, level));
+	}
+	
+	private static void invertY(GridPos pos, Level level) {
+		pos.y = level.height-1 - pos.y;
 	}
 }

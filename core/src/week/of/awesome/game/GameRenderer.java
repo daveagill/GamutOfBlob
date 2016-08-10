@@ -8,43 +8,58 @@ import week.of.awesome.framework.GraphicsResources;
 import week.of.awesome.framework.RenderService;
 
 public class GameRenderer {
+	private static final float TILE_SIZE = 32f;
+	private static final float BOUNCE_AMOUNT = 0.2f;
+	
 	private RenderService gfx;
 	
-	private Texture blob;
-	private Texture floor;
+	private Texture blobTex;
+	private Texture blueGeneTex;
+	private Texture floorTex;
 	
+	private BounceTween pickupTween = new BounceTween();
 	
 	public GameRenderer(GraphicsResources gfxResources, RenderService gfx) {
 		this.gfx = gfx;
 		
-		blob = gfxResources.newTexture("blob.png");
-		floor = gfxResources.newTexture("floor.png");
+		blobTex = gfxResources.newTexture("blob.png");
+		blueGeneTex = gfxResources.newTexture("blue-gene.png");
+		floorTex = gfxResources.newTexture("floor.png");
 	}
 	
-	public void draw(World world) {
-		Level level = world.getLevel();
+	public void draw(World world, float dt) {
+		pickupTween.update(dt);
 		
-		float mapLeft = gfx.getMidX() - (level.getWidth()-1) * World.TILE_SIZE / 2f;
-		float mapBottom = gfx.getMidY() - (level.getHeight()-1) * World.TILE_SIZE / 2f;
+		float mapLeft = gfx.getMidX() - (world.getMapWidth()-1) * TILE_SIZE / 2f;
+		float mapBottom = gfx.getMidY() - (world.getMapHeight()-1) * TILE_SIZE / 2f;
 		
-		gfx.setTransformMatrix(new Matrix4().translate(mapLeft, mapBottom, 0));
+		gfx.setTransformMatrix(new Matrix4().translate(mapLeft, mapBottom, 0).scale(TILE_SIZE, TILE_SIZE, 1f));
 		
 		
-		drawMap(level);
+		drawMap(world);
 		
-		gfx.drawCentered(blob, world.getBlobPosition(), World.TILE_SIZE, World.TILE_SIZE, false);
+		// draw genes
+		for (GridPos geneGridPos : world.getBlueGenes()) {
+			drawSprite(blueGeneTex, new Vector2(geneGridPos.x, geneGridPos.y + pickupTween.interpolate(BOUNCE_AMOUNT)));
+		}
+		
+		// draw blobs
+		for (Blob blob : world.getBlobs()) {
+			drawSprite(blobTex, blob.getPosition());
+		}
+		//drawSprite(blob, world.getActiveBlobPosition());
 	}
 	
 	
-	private void drawMap(Level level) {		
-		for (int j = 0; j < level.getHeight(); ++j) {
-			for (int i = 0; i < level.getWidth(); ++i) {
-				float x = i * World.TILE_SIZE;
-				float y = j * World.TILE_SIZE;
+	private void drawMap(World world) {		
+		for (int j = world.getMapHeight(); j >= 0 ; --j) {
+			for (int i = 0; i < world.getMapWidth(); ++i) {
+				float x = i;
+				float y = j;
 				
-				Tile t = level.tileAt(i, j);
+				Tile t = world.tileAt(i, j);				
 				if  (t != null) {
-					gfx.drawCentered(tileToTex(t), new Vector2(x,y), World.TILE_SIZE, World.TILE_SIZE, false);
+					drawSprite(tileToTex(t), new Vector2(x,y));
 				}
 			}
 		}
@@ -52,14 +67,24 @@ public class GameRenderer {
 	
 	private Texture tileToTex(Tile t) {
 		switch (t) {
-			case FLOOR: return floor;
-			case GOAL: return floor;
-			case BLUE_GATE: return floor;
-			case BLUE_GENE: return floor;
-			case LIGHT: return floor;
-			case LIGHT_SWITCH: return floor;
+			case FLOOR: return floorTex;
+			case GOAL: return floorTex;
+			case BLUE_GATE: return floorTex;
+			case LIGHT: return floorTex;
+			case LIGHT_SWITCH: return floorTex;
 		}
 		
 		return null;
+	}
+	
+	private void drawSprite(Texture tex, Vector2 pos) {
+		if (tex.getWidth() > tex.getHeight()) {
+			float ratio = ((float)tex.getHeight()) / tex.getWidth();
+			gfx.drawCentered(tex, pos, 1f, ratio, false);
+		}
+		else {
+			float ratio = ((float)tex.getWidth()) / tex.getHeight();
+			gfx.drawCentered(tex, pos, ratio, 1f, false);
+		}
 	}
 }

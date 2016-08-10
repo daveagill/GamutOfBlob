@@ -5,6 +5,5 @@ public enum Tile {
 	GOAL,
 	LIGHT,
 	LIGHT_SWITCH,
-	BLUE_GENE,
 	BLUE_GATE
 }
