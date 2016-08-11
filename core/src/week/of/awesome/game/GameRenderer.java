@@ -18,8 +18,12 @@ public class GameRenderer {
 	private Texture blobTex;
 	private Texture blobOverlayTex;
 	private Texture activeIndicatorTex;
+	
 	private Texture blueGeneTex;
+	private Texture starTex;
+	
 	private Texture floorTex;
+	private Texture waterTex;
 	
 	private Color green = new Color(170/255f, 212/255f, 0, 1);
 	private Color blue = new Color(0, 102/255f, 255/255f, 1);
@@ -33,8 +37,12 @@ public class GameRenderer {
 		blobTex = gfxResources.newTexture("blob-base.png");
 		blobOverlayTex = gfxResources.newTexture("blob-overlay.png");
 		activeIndicatorTex = gfxResources.newTexture("indicator.png");
+		
 		blueGeneTex = gfxResources.newTexture("blue-gene.png");
+		starTex = gfxResources.newTexture("star.png");
+		
 		floorTex = gfxResources.newTexture("floor.png");
+		waterTex = gfxResources.newTexture("water.png");
 	}
 	
 	public void draw(World world, float dt) {
@@ -62,6 +70,12 @@ public class GameRenderer {
 		
 		// draw active blob indicator
 		gfx.drawCentered(activeIndicatorTex, world.getActiveBlobPosition().cpy().add(0, 0.5f + indicatorTween.interpolate(0.5f)), activeIndicatorTex.getWidth() / TILE_SIZE, activeIndicatorTex.getHeight() / TILE_SIZE, false);
+	
+	
+		// draw stars
+		for (GridPos starGridPos : world.getStars()) {
+			drawSprite(starTex, new Vector2(starGridPos.x, starGridPos.y));
+		}
 	}
 	
 	
@@ -82,8 +96,7 @@ public class GameRenderer {
 	private Texture tileToTex(Tile t) {
 		switch (t) {
 			case FLOOR: return floorTex;
-			case GOAL: return floorTex;
-			case BLUE_GATE: return floorTex;
+			case WATER: return waterTex;
 			case LIGHT: return floorTex;
 			case LIGHT_SWITCH: return floorTex;
 		}

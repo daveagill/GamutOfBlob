@@ -68,15 +68,21 @@ public class LevelLoader {
 					currRow.add(Tile.FLOOR);
 					break;
 					
+				// water tile
+				case 'w':
+					currRow.add(Tile.WATER);
+					break;
+					
 				// blob spawner
 				case '@':
 					currRow.add(Tile.FLOOR);
 					level.blobStartPos = currGridPosition;
 					break;
 					
-				// goal (x marks the spot!)
-				case 'x':
-					currRow.add(Tile.GOAL);
+				// star collectible
+				case '*':
+					currRow.add(Tile.FLOOR);
+					level.stars.add(currGridPosition);
 					break;
 					
 				// blue gene
@@ -96,6 +102,7 @@ public class LevelLoader {
 		// sicne the level is loaded from top-to-bottom need to invert all y-coords
 		invertY(level.blobStartPos, level);
 		level.blueGenes.forEach(pos -> invertY(pos, level));
+		level.stars.forEach(pos -> invertY(pos, level));
 	}
 	
 	private static void invertY(GridPos pos, Level level) {

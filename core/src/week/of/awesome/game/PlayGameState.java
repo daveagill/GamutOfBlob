@@ -23,20 +23,32 @@ public class PlayGameState implements GameState {
 	private Deque<Direction> directionStack = new ArrayDeque<>();
 	
 	private Sound blobMovedSound;
+	private Sound blobTreadWaterSound;
 	private Sound collectedGeneSound;
+	private Sound collectedStarSound;
 	private Sound switchBlobSound;
 	
 	
 	private WorldEvents eventHandler = new WorldEvents() {
 
 		@Override
-		public void onBlobMoved() {
-			blobMovedSound.play(0.5f);
+		public void onBlobMoved(Tile tile) {
+			if (tile == Tile.WATER) {
+				blobTreadWaterSound.play();
+			}
+			else {
+				blobMovedSound.play(0.5f);
+			}
 		}
 
 		@Override
 		public void onCollectedGene() {
 			collectedGeneSound.play();
+		}
+		
+		@Override
+		public void onCollectedStar() {
+			collectedStarSound.play();
 		}
 
 	};
@@ -49,7 +61,9 @@ public class PlayGameState implements GameState {
 		world = new World();
 		
 		blobMovedSound = services.sfxResources.newSound("blobMoved.wav");
+		blobTreadWaterSound = services.sfxResources.newSound("treadWater.wav");
 		collectedGeneSound = services.sfxResources.newSound("collectedGene.wav");
+		collectedStarSound = services.sfxResources.newSound("collectedStar.wav");
 		switchBlobSound = services.sfxResources.newSound("switchBlob.wav");
 	}
 

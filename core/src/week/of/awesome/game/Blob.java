@@ -75,6 +75,7 @@ public class Blob {
 			// validate the transition (collision detection)
 			Tile t = tileMap.tileAt(nextPos.x, nextPos.y);
 			boolean walkable = t != null;
+			if (kind != Kind.BLUE && t == Tile.WATER) { walkable = false; }
 			
 			// if walkable then kick off the transition
 			lastDirection = null;

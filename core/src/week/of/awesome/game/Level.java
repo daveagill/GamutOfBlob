@@ -14,6 +14,7 @@ public class Level {
 	public GridPos blobStartPos;
 	
 	public Collection<GridPos> blueGenes = new ArrayList<>();
+	public Collection<GridPos> stars = new ArrayList<>();
 	
 
 	public Tile tileAt(int x, int y) {

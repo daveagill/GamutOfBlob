@@ -20,12 +20,14 @@ public class World {
 	int activeBlobIdx;
 	private List<Blob> blobs;
 	private Collection<GridPos> activeBlueGenes;
+	private Collection<GridPos> activeStars;
 	
 	public World() {
 		level = LevelLoader.load("level1.txt");
 		blobs = new ArrayList<>();
 		blobs.add(new Blob(level.blobStartPos, Kind.GREEN));
 		activeBlueGenes = new HashSet<>(level.blueGenes);
+		activeStars = new HashSet<>(level.stars);
 		
 		activeBlobIdx = 0;
 	}
@@ -40,6 +42,14 @@ public class World {
 	
 	public Tile tileAt(int i, int j) {
 		return level.tileAt(i, j);
+	}
+	
+	public Tile tileAt(GridPos pos) {
+		return tileAt(pos.x, pos.y);
+	}
+	
+	public Collection<GridPos> getStars() {
+		return activeStars;
 	}
 	
 	public Collection<GridPos> getBlueGenes() {
@@ -68,10 +78,10 @@ public class World {
 		boolean onNewTile = activeBlob().update(this, dt);
 		
 		if (onNewTile) {
-			events.onBlobMoved();
-			
 			GridPos blobGridPos = activeBlob().getGridPosition();
+			Tile tile = tileAt(blobGridPos);
 			
+			// blue gene pickups
 			if (activeBlueGenes.remove(blobGridPos)) {
 				events.onCollectedGene();
 				
@@ -80,6 +90,13 @@ public class World {
 				blueBlobPos.x -= 1;
 				blobs.add(new Blob(blueBlobPos, Kind.BLUE));
 			}
+			
+			// star pickups
+			if (activeStars.remove(blobGridPos)) {
+				events.onCollectedStar();
+			}
+			
+			events.onBlobMoved(tile);
 		}
 	}
 
