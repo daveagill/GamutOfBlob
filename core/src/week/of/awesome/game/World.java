@@ -22,14 +22,17 @@ public class World {
 	private Collection<GridPos> activeBlueGenes;
 	private Collection<GridPos> activeStars;
 	
-	public World() {
-		level = LevelLoader.load("level1.txt");
+	private int numStarsCollected;
+	
+	public World(String levelFilename) {
+		this.level = LevelLoader.load(levelFilename);
 		blobs = new ArrayList<>();
 		blobs.add(new Blob(level.blobStartPos, Kind.GREEN));
 		activeBlueGenes = new HashSet<>(level.blueGenes);
 		activeStars = new HashSet<>(level.stars);
 		
 		activeBlobIdx = 0;
+		numStarsCollected = 0;
 	}
 	
 	public int getMapWidth() {
@@ -74,6 +77,10 @@ public class World {
 		if (activeBlobIdx < 0) { activeBlobIdx = blobs.size()-1; }
 	}
 	
+	public int getNumStarsCollected() {
+		return numStarsCollected;
+	}
+	
 	public void update(float dt, WorldEvents events) {
 		boolean onNewTile = activeBlob().update(this, dt);
 		
@@ -94,6 +101,11 @@ public class World {
 			// star pickups
 			if (activeStars.remove(blobGridPos)) {
 				events.onCollectedStar();
+				++numStarsCollected;
+				
+				if (activeStars.isEmpty()) {
+					events.onLevelComplete();
+				}
 			}
 			
 			events.onBlobMoved(tile);

@@ -15,7 +15,7 @@ public class RenderService implements Disposable {
 	private SpriteBatch batch = new SpriteBatch();
 	
 	private OrthographicCamera camera  = new OrthographicCamera();
-	private int midX, midY;
+	private int width, height;
 
 	public RenderService() {
 		gl = Gdx.gl;
@@ -26,16 +26,24 @@ public class RenderService implements Disposable {
 		camera.setToOrtho(false, width, height);
 		camera.update();
 		
-		midX = width / 2;
-		midY = height / 2;
+		this.width = width;
+		this.height = height;
 	}
 	
 	public int getMidX() {
-		return midX;
+		return width / 2;
 	}
 	
 	public int getMidY() {
-		return midY;
+		return height / 2;
+	}
+	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
 	}
 	
 	public void beginFrame() {
@@ -52,9 +60,14 @@ public class RenderService implements Disposable {
 		batch.setTransformMatrix(m);
 	}
 	
+	public void draw(Texture t, Vector2 pos, float width, float height, float alpha) {
+		batch.setColor(new Color(1f, 1f, 1f, alpha));
+		batch.draw(t, pos.x, pos.y, width, height);
+		batch.setColor(Color.WHITE);
+	}
+	
 	public void drawCentered(Texture t, Vector2 pos, float width, float height, boolean flipX) {
-		float actualWidth = flipX ? -width : width;
-		batch.draw(t, pos.x - actualWidth/2, pos.y - height/2, actualWidth, height);
+		drawCenteredTinted(t, pos, width, height, flipX, Color.WHITE);
 	}
 	
 	public void drawCenteredTinted(Texture t, Vector2 pos, float width, float height, boolean flipX, Color colour) {

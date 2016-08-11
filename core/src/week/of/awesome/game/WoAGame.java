@@ -8,6 +8,9 @@ public class WoAGame extends StandardGameApp {
 	@Override
 	protected GameState setupGameStates() {
 		PlayGameState playGameState = new PlayGameState();
+		GameOverState gameOverState = new GameOverState();
+		
+		playGameState.setGameOverState(gameOverState);
 		
 		return playGameState;
 	}

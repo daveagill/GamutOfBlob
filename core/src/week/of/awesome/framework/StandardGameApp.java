@@ -54,7 +54,7 @@ public abstract class StandardGameApp implements ApplicationListener {
 		
 		while (accumulatedTime >= FIXED_TIMESTEP_NANOS) {
 			GameState nextState = currentState.update(FIXED_TIMESTEP);
-			if (nextState != null && nextState != currentState) {
+			if (nextState != null) {
 				currentState.onExit();
 				nextState.onEnter(services);
 				

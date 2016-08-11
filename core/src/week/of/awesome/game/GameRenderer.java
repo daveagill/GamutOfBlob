@@ -2,6 +2,7 @@ package week.of.awesome.game;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 
@@ -14,6 +15,8 @@ public class GameRenderer {
 	private static final float BOUNCE_AMOUNT = 0.2f;
 	
 	private RenderService gfx;
+	
+	private Texture fadeTex;
 	
 	private Texture blobTex;
 	private Texture blobOverlayTex;
@@ -34,6 +37,9 @@ public class GameRenderer {
 	public GameRenderer(GraphicsResources gfxResources, RenderService gfx) {
 		this.gfx = gfx;
 		
+		fadeTex = gfxResources.newTexture("water.png");
+		fadeTex.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
+		
 		blobTex = gfxResources.newTexture("blob-base.png");
 		blobOverlayTex = gfxResources.newTexture("blob-overlay.png");
 		activeIndicatorTex = gfxResources.newTexture("indicator.png");
@@ -43,6 +49,11 @@ public class GameRenderer {
 		
 		floorTex = gfxResources.newTexture("floor.png");
 		waterTex = gfxResources.newTexture("water.png");
+	}
+	
+	public void drawFade(float amount) {
+		gfx.setTransformMatrix(new Matrix4());
+		gfx.draw(fadeTex, new Vector2(0, 0), gfx.getWidth(), gfx.getHeight(), amount);
 	}
 	
 	public void draw(World world, float dt) {

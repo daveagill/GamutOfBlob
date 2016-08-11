@@ -1,0 +1,11 @@
+<level name="Into Darkness">
+	<map>
+		. . . . . o o o . . .
+		@ o o o o o . o o b o
+		. . . . . o o o o o o
+		. . . . . o . . w . .
+		. . . . . o . . w . .
+		. . . . . . . . w . .
+		. . . . . . . . * . .
+	</map>
+</level>
