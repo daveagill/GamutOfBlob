@@ -7,6 +7,8 @@ import java.util.List;
 
 import com.badlogic.gdx.math.Vector2;
 
+import week.of.awesome.game.Blob.Kind;
+
 public class World {
 	
 	public static enum Direction {
@@ -22,7 +24,7 @@ public class World {
 	public World() {
 		level = LevelLoader.load("level1.txt");
 		blobs = new ArrayList<>();
-		blobs.add(new Blob(level.blobStartPos));
+		blobs.add(new Blob(level.blobStartPos, Kind.GREEN));
 		activeBlueGenes = new HashSet<>(level.blueGenes);
 		
 		activeBlobIdx = 0;
@@ -76,7 +78,7 @@ public class World {
 				// generate a new blob offset to the left
 				GridPos blueBlobPos = blobGridPos.cpy();
 				blueBlobPos.x -= 1;
-				blobs.add(new Blob(blueBlobPos));
+				blobs.add(new Blob(blueBlobPos, Kind.BLUE));
 			}
 		}
 	}

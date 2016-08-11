@@ -1,11 +1,13 @@
 package week.of.awesome.game;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 
 import week.of.awesome.framework.GraphicsResources;
 import week.of.awesome.framework.RenderService;
+import week.of.awesome.game.Blob.Kind;
 
 public class GameRenderer {
 	private static final float TILE_SIZE = 32f;
@@ -14,21 +16,30 @@ public class GameRenderer {
 	private RenderService gfx;
 	
 	private Texture blobTex;
+	private Texture blobOverlayTex;
+	private Texture activeIndicatorTex;
 	private Texture blueGeneTex;
 	private Texture floorTex;
 	
-	private BounceTween pickupTween = new BounceTween();
+	private Color green = new Color(170/255f, 212/255f, 0, 1);
+	private Color blue = new Color(0, 102/255f, 255/255f, 1);
+	
+	private BounceTween pickupTween = new BounceTween(1f);
+	private BounceTween indicatorTween = new BounceTween(1f);
 	
 	public GameRenderer(GraphicsResources gfxResources, RenderService gfx) {
 		this.gfx = gfx;
 		
-		blobTex = gfxResources.newTexture("blob.png");
+		blobTex = gfxResources.newTexture("blob-base.png");
+		blobOverlayTex = gfxResources.newTexture("blob-overlay.png");
+		activeIndicatorTex = gfxResources.newTexture("indicator.png");
 		blueGeneTex = gfxResources.newTexture("blue-gene.png");
 		floorTex = gfxResources.newTexture("floor.png");
 	}
 	
 	public void draw(World world, float dt) {
 		pickupTween.update(dt);
+		indicatorTween.update(dt);
 		
 		float mapLeft = gfx.getMidX() - (world.getMapWidth()-1) * TILE_SIZE / 2f;
 		float mapBottom = gfx.getMidY() - (world.getMapHeight()-1) * TILE_SIZE / 2f;
@@ -45,9 +56,12 @@ public class GameRenderer {
 		
 		// draw blobs
 		for (Blob blob : world.getBlobs()) {
-			drawSprite(blobTex, blob.getPosition());
+			gfx.drawCenteredTinted(blobTex, blob.getPosition(), 1f, 1f, false, kindToColour(blob.getKind()));
+			gfx.drawCentered(blobOverlayTex, blob.getPosition(), 1f, 1f, false);
 		}
-		//drawSprite(blob, world.getActiveBlobPosition());
+		
+		// draw active blob indicator
+		gfx.drawCentered(activeIndicatorTex, world.getActiveBlobPosition().cpy().add(0, 0.5f + indicatorTween.interpolate(0.5f)), activeIndicatorTex.getWidth() / TILE_SIZE, activeIndicatorTex.getHeight() / TILE_SIZE, false);
 	}
 	
 	
@@ -75,6 +89,15 @@ public class GameRenderer {
 		}
 		
 		return null;
+	}
+	
+	private Color kindToColour(Kind k) {
+		switch (k) {
+			case GREEN: return green;
+			case BLUE: return blue;
+		}
+		
+		throw new RuntimeException("Unmapped blob kind: " + k);
 	}
 	
 	private void drawSprite(Texture tex, Vector2 pos) {

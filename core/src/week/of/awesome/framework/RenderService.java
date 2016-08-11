@@ -1,6 +1,7 @@
 package week.of.awesome.framework;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -54,6 +55,13 @@ public class RenderService implements Disposable {
 	public void drawCentered(Texture t, Vector2 pos, float width, float height, boolean flipX) {
 		float actualWidth = flipX ? -width : width;
 		batch.draw(t, pos.x - actualWidth/2, pos.y - height/2, actualWidth, height);
+	}
+	
+	public void drawCenteredTinted(Texture t, Vector2 pos, float width, float height, boolean flipX, Color colour) {
+		float actualWidth = flipX ? -width : width;
+		batch.setColor(colour);
+		batch.draw(t, pos.x - actualWidth/2, pos.y - height/2, actualWidth, height);
+		batch.setColor(Color.WHITE);
 	}
 
 	@Override

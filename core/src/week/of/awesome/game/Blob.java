@@ -5,6 +5,12 @@ import com.badlogic.gdx.math.Vector2;
 import week.of.awesome.game.World.Direction;
 
 public class Blob {
+	
+	public static enum Kind {
+		GREEN, BLUE
+	}
+	
+	
 	private static final float BLOB_SPEED = 8f;
 	
 	private GridPos blobPos;
@@ -14,9 +20,16 @@ public class Blob {
 	private Direction lastDirection;
 	private Direction queuedInput;
 	
-	public Blob(GridPos position) {
+	private Kind kind;
+	
+	public Blob(GridPos position, Kind kind) {
 		blobPos = position.cpy();
 		nextBlobPos = position.cpy();
+		this.kind = kind;
+	}
+	
+	public Kind getKind() {
+		return kind;
 	}
 	
 	public GridPos getGridPosition() {

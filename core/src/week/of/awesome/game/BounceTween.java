@@ -5,9 +5,14 @@ import com.badlogic.gdx.math.Interpolation;
 public class BounceTween {
 	private float value = 0f;
 	private float tweenSign = 1f;
+	private float speed;
+	
+	public BounceTween(float speed) {
+		this.speed = speed;
+	}
 	
 	public void update(float dt) {
-		value += dt * tweenSign;
+		value += dt * tweenSign * speed;
 		
 		if (value > 1f) {
 			value = 2f - value;
