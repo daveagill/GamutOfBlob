@@ -14,6 +14,7 @@ public class Level {
 	public GridPos blobStartPos;
 	
 	public Collection<GridPos> blueGenes = new ArrayList<>();
+	public Collection<GridPos> redGenes = new ArrayList<>();
 	public Collection<GridPos> stars = new ArrayList<>();
 	
 	public Collection<ShadowMask> shadowMasks = new ArrayList<>();

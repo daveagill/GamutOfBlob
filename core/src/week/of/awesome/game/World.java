@@ -21,6 +21,7 @@ public class World {
 	int activeBlobIdx;
 	private List<Blob> blobs;
 	private Collection<GridPos> activeBlueGenes;
+	private Collection<GridPos> activeRedGenes;
 	private Collection<GridPos> activeStars;
 	private Collection<ShadowAndButtonState> shadowsAndButtons;
 	
@@ -31,6 +32,7 @@ public class World {
 		blobs = new ArrayList<>();
 		blobs.add(new Blob(level.blobStartPos, Kind.GREEN));
 		activeBlueGenes = new HashSet<>(level.blueGenes);
+		activeRedGenes = new HashSet<>(level.redGenes);
 		activeStars = new HashSet<>(level.stars);
 		shadowsAndButtons = level.shadowMasks.stream().map(ShadowAndButtonState::new).collect(Collectors.toList());
 		
@@ -72,6 +74,10 @@ public class World {
 		return activeBlueGenes;
 	}
 	
+	public Collection<GridPos> getRedGenes() {
+		return activeRedGenes;
+	}
+	
 	public Collection<Blob> getBlobs() {
 		return blobs;
 	}
@@ -103,13 +109,11 @@ public class World {
 			Tile tile = tileAt(blobGridPos);
 			
 			// blue gene pickups
-			if (activeBlueGenes.remove(blobGridPos)) {
+			boolean geneCollected = false;
+			geneCollected &= pickupGenes(activeBlueGenes, Kind.BLUE, blobGridPos);
+			geneCollected &= pickupGenes(activeRedGenes, Kind.RED, blobGridPos);
+			if (geneCollected) {
 				events.onCollectedGene();
-				
-				// generate a new blob offset to the left
-				GridPos blueBlobPos = blobGridPos.cpy();
-				blueBlobPos.x -= 1;
-				blobs.add(new Blob(blueBlobPos, Kind.BLUE));
 			}
 			
 			// star pickups
@@ -137,6 +141,17 @@ public class World {
 			
 			events.onBlobMoved(tile);
 		}
+	}
+	
+	private boolean pickupGenes(Collection<GridPos> activeGenes, Kind kind, GridPos at) {
+		if (activeGenes.remove(at)) {
+			// generate a new blob offset to the left
+			GridPos newBlobPos = at.cpy();
+			newBlobPos.x -= 1;
+			blobs.add(new Blob(newBlobPos, kind));
+			return true;
+		}
+		return false;
 	}
 
 	private Blob activeBlob() {

@@ -17,6 +17,11 @@ public class GameRenderer {
 	
 	private static final float TILE_SIZE = 32f;
 	private static final float BOUNCE_AMOUNT = 0.2f;
+	private static final float BLOB_PULSATE_AMOUNT = 0.15f;
+	
+	private static final Color GREEN = new Color(170/255f, 212/255f, 0, 1);
+	private static final Color BLUE = new Color(0, 102/255f, 255/255f, 1);
+	private static final Color RED = new Color(255/255f, 0, 0, 1);
 	
 	private RenderService gfx;
 	
@@ -26,7 +31,7 @@ public class GameRenderer {
 	private Texture blobOverlayTex;
 	private Texture activeIndicatorTex;
 	
-	private Texture blueGeneTex;
+	private Texture geneTex;
 	private Texture starTex;
 	
 	private Texture shadowTex;
@@ -34,31 +39,31 @@ public class GameRenderer {
 	
 	private Texture floorTex;
 	private Texture waterTex;
+	private Texture lavaTex;
 	
-	private Color green = new Color(170/255f, 212/255f, 0, 1);
-	private Color blue = new Color(0, 102/255f, 255/255f, 1);
-	
+	private BounceTween blobHeightTween = new BounceTween(2.2f);
 	private BounceTween pickupTween = new BounceTween(1f);
 	private BounceTween indicatorTween = new BounceTween(1f);
 	
 	public GameRenderer(GraphicsResources gfxResources, RenderService gfx) {
 		this.gfx = gfx;
 		
-		fadeTex = gfxResources.newTexture("water.png");
+		fadeTex = newTexture(gfxResources, "water.png");
 		fadeTex.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
 		
-		blobTex = gfxResources.newTexture("blob-base.png");
-		blobOverlayTex = gfxResources.newTexture("blob-overlay.png");
-		activeIndicatorTex = gfxResources.newTexture("indicator.png");
+		blobTex = newTexture(gfxResources, "blob-base.png");
+		blobOverlayTex = newTexture(gfxResources, "blob-overlay.png");
+		activeIndicatorTex = newTexture(gfxResources, "indicator.png");
 		
-		blueGeneTex = gfxResources.newTexture("blue-gene.png");
-		starTex = gfxResources.newTexture("star.png");
+		geneTex = newTexture(gfxResources, "gene.png");
+		starTex = newTexture(gfxResources, "star.png");
 		
-		shadowTex = gfxResources.newTexture("shadow.png");
-		lightButtonTex = gfxResources.newTexture("lightButton.png");
+		shadowTex = newTexture(gfxResources, "shadow.png");
+		lightButtonTex = newTexture(gfxResources, "lightButton.png");
 		
-		floorTex = gfxResources.newTexture("floor.png");
-		waterTex = gfxResources.newTexture("water.png");
+		floorTex = newTexture(gfxResources, "floor.png");
+		waterTex = newTexture(gfxResources, "water.png");
+		lavaTex = newTexture(gfxResources, "lava.png");
 	}
 	
 	public void drawFade(float amount) {
@@ -67,6 +72,7 @@ public class GameRenderer {
 	}
 	
 	public void draw(World world, float dt) {
+		blobHeightTween.update(dt);
 		pickupTween.update(dt);
 		indicatorTween.update(dt);
 		
@@ -80,20 +86,27 @@ public class GameRenderer {
 		
 		// draw genes
 		for (GridPos geneGridPos : world.getBlueGenes()) {
-			drawSprite(blueGeneTex, new Vector2(geneGridPos.x, geneGridPos.y + pickupTween.interpolate(BOUNCE_AMOUNT)), 1f);
+			drawTintedSprite(geneTex, new Vector2(geneGridPos.x, geneGridPos.y + pickupTween.interpolate(BOUNCE_AMOUNT)), BLUE);
+		}
+		for (GridPos geneGridPos : world.getRedGenes()) {
+			drawTintedSprite(geneTex, new Vector2(geneGridPos.x, geneGridPos.y + pickupTween.interpolate(BOUNCE_AMOUNT)), RED);
 		}
 		
 		// draw light switches
 		for (ShadowAndButtonState shadowAndButtons : world.getShadowsAndButtons()) {
 			for (GridPos buttonPos : shadowAndButtons.getButtons()) {
-				drawSprite(lightButtonTex, new Vector2(buttonPos.x, buttonPos.y), 1f);
+				drawSprite(lightButtonTex, new Vector2(buttonPos.x, buttonPos.y));
 			}
 		}
 		
 		// draw blobs
+		int blobIdx = 0;
 		for (Blob blob : world.getBlobs()) {
-			gfx.drawCenteredTinted(blobTex, blob.getPosition(), 1f, 1f, false, kindToColour(blob.getKind()));
-			gfx.drawCentered(blobOverlayTex, blob.getPosition(), 1f, 1f, false);
+			++blobIdx;
+			float heightDelta = blobHeightTween.interpolate(BLOB_PULSATE_AMOUNT, blobIdx * 0.3f);
+			Vector2 position = blob.getPosition().add(0, heightDelta/2);
+			drawTintedSprite(blobTex, position, 1f, 1f+heightDelta, kindToColour(blob.getKind()));
+			drawSprite(blobOverlayTex, position, 1f, 1f+heightDelta);
 		}
 		
 		// draw active blob indicator
@@ -102,7 +115,7 @@ public class GameRenderer {
 	
 		// draw stars
 		for (GridPos starGridPos : world.getStars()) {
-			drawSprite(starTex, new Vector2(starGridPos.x, starGridPos.y), 1f);
+			drawSprite(starTex, new Vector2(starGridPos.x, starGridPos.y));
 		}
 		
 		// draw shadows
@@ -135,8 +148,7 @@ public class GameRenderer {
 		switch (t) {
 			case FLOOR: return floorTex;
 			case WATER: return waterTex;
-			case LIGHT: return floorTex;
-			case LIGHT_SWITCH: return floorTex;
+			case LAVA: return lavaTex;
 		}
 		
 		return null;
@@ -144,8 +156,9 @@ public class GameRenderer {
 	
 	private Color kindToColour(Kind k) {
 		switch (k) {
-			case GREEN: return green;
-			case BLUE: return blue;
+			case GREEN: return GREEN;
+			case BLUE: return BLUE;
+			case RED: return RED;
 		}
 		
 		throw new RuntimeException("Unmapped blob kind: " + k);
@@ -155,14 +168,30 @@ public class GameRenderer {
 		gfx.drawCenteredTinted(tex, new Vector2(pos.x, pos.y), 1f, 1f, false, new Color(1f, 1f, 1f, alpha));
 	}
 	
-	private void drawSprite(Texture tex, Vector2 pos, float scale) {
+	private void drawSprite(Texture tex, Vector2 pos, float width, float height) {
+		drawTintedSprite(tex, pos, width, height, Color.WHITE);
+	}
+	
+	private void drawSprite(Texture tex, Vector2 pos) {
+		drawSprite(tex, pos, 1f, 1f);
+	}
+	
+	private void drawTintedSprite(Texture tex, Vector2 pos, float width, float height, Color colour) {
 		if (tex.getWidth() > tex.getHeight()) {
 			float ratio = ((float)tex.getHeight()) / tex.getWidth();
-			gfx.drawCentered(tex, pos, scale, ratio * scale, false);
+			gfx.drawCenteredTinted(tex, pos, width, ratio * height, false, colour);
 		}
 		else {
 			float ratio = ((float)tex.getWidth()) / tex.getHeight();
-			gfx.drawCentered(tex, pos, ratio * scale, scale, false);
+			gfx.drawCenteredTinted(tex, pos, ratio * width, height, false, colour);
 		}
+	}
+	
+	private void drawTintedSprite(Texture tex, Vector2 pos, Color colour) {
+		drawTintedSprite(tex, pos, 1f, 1f, colour);
+	}
+	
+	private static Texture newTexture(GraphicsResources gfxResources, String filename) {
+		return gfxResources.newTexture("sprites/" + filename);
 	}
 }

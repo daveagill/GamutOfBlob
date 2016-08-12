@@ -108,13 +108,13 @@ public class PlayGameState implements GameState {
 		renderer = new GameRenderer(services.gfxResources, services.gfx);
 		world = new World(filenameForLevel(levelNum));
 		
-		blobMovedSound = services.sfxResources.newSound("blobMoved.wav");
-		blobTreadWaterSound = services.sfxResources.newSound("treadWater.wav");
-		collectedGeneSound = services.sfxResources.newSound("collectedGene.wav");
-		collectedStarSound = services.sfxResources.newSound("collectedStar.wav");
-		switchBlobSound = services.sfxResources.newSound("switchBlob.wav");
-		buttonActivatedSound = services.sfxResources.newSound("buttonActivated.wav");
-		buttonDeactivatedSound = services.sfxResources.newSound("buttonDeactivated.wav");
+		blobMovedSound = newSound("blobMoved.wav");
+		blobTreadWaterSound = newSound("treadWater.wav");
+		collectedGeneSound = newSound("collectedGene.wav");
+		collectedStarSound = newSound("collectedStar.wav");
+		switchBlobSound = newSound("switchBlob.wav");
+		buttonActivatedSound = newSound("buttonActivated.wav");
+		buttonDeactivatedSound = newSound("buttonDeactivated.wav");
 		
 		music.playNext(Mood.COMFORTABLE);
 	}
@@ -165,8 +165,8 @@ public class PlayGameState implements GameState {
 				if (direction != null) {
 					directionStack.addLast(direction);
 				}
-				else if (keycode == Keys.SHIFT_RIGHT || keycode == Keys.SHIFT_LEFT) {
-					world.switchBlob(keycode == Keys.SHIFT_RIGHT);
+				else if (keycode == Keys.SPACE) {
+					world.switchBlob(true);
 					switchBlobSound.play();
 				}
 
@@ -204,5 +204,9 @@ public class PlayGameState implements GameState {
 	
 	private String filenameForLevel(int idx) {
 		return "level" + idx + ".txt";
+	}
+	
+	private Sound newSound(String filename) {
+		return services.sfxResources.newSound("sfx/" + filename);
 	}
 }

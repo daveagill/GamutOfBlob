@@ -4,16 +4,10 @@ import com.badlogic.gdx.math.Interpolation;
 
 public class BounceTween {
 	private float t = 0f;
-	private float initialValue;
 	private float speed;
 	
 	public BounceTween(float speed) {
 		this.speed = speed;
-	}
-	
-	public BounceTween(float speed, float initialValue) {
-		this.speed = speed;
-		this.initialValue = initialValue;
 	}
 	
 	public boolean update(float dt) {
@@ -26,11 +20,15 @@ public class BounceTween {
 	}
 	
 	public float interpolate(float range) {
-		return interpolate(range, Interpolation.pow2);
+		return interpolate(range, 0);
 	}
 	
-	public float interpolate(float range, Interpolation interpolation) {
-		float value = initialValue + t;
+	public float interpolate(float range, float offset) {
+		return interpolate(range, offset, Interpolation.pow2);
+	}
+	
+	public float interpolate(float range, float offset, Interpolation interpolation) {
+		float value = offset - (int)offset + t;
 		
 		while (value > 1f) {
 			value = value - 2;

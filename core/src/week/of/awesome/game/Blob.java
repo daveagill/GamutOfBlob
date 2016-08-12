@@ -8,7 +8,7 @@ import week.of.awesome.game.World.Direction;
 public class Blob {
 	
 	public static enum Kind {
-		GREEN, BLUE
+		GREEN, BLUE, RED
 	}
 	
 	
@@ -57,7 +57,7 @@ public class Blob {
 	public void becomeScared() {
 		if (isScared()) { return; }
 		scaredCyclesRemaining = 5;
-		scareTweener = new BounceTween(20, 0.5f);
+		scareTweener = new BounceTween(20);
 	}
 	
 	public boolean isScared() {
@@ -74,7 +74,7 @@ public class Blob {
 			if (scareTweener.update(dt)) {
 				--scaredCyclesRemaining;
 			}
-			scaredXOffset = scareTweener.interpolate(SCARED_VIBRATE_AMOUNT, Interpolation.linear) - SCARED_VIBRATE_AMOUNT/2;
+			scaredXOffset = scareTweener.interpolate(SCARED_VIBRATE_AMOUNT, 0.5f, Interpolation.linear) - SCARED_VIBRATE_AMOUNT/2;
 		}
 			
 		
@@ -113,9 +113,12 @@ public class Blob {
 			// validate the transition (collision detection)
 			Tile t = tileMap.tileAt(nextPos);
 			boolean walkable = t != null;
-			if (kind != Kind.BLUE && t == Tile.WATER) { walkable = false; }
-			if (tileMap.isShadowAt(nextPos)) {
-				walkable = false;
+			boolean scary = false;
+			if (kind != Kind.BLUE && t == Tile.WATER) { walkable = false; scary = true; }
+			if (kind != Kind.RED && t == Tile.LAVA) { walkable = false; scary = true;  }
+			if (tileMap.isShadowAt(nextPos)) { walkable = false; scary = true; }
+			
+			if (scary && t != null) {
 				becomeScared();
 			}
 			

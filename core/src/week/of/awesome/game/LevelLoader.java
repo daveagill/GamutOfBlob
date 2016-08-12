@@ -79,6 +79,11 @@ public class LevelLoader {
 					currRow.add(Tile.WATER);
 					break;
 					
+				// water tile
+				case 'l':
+					currRow.add(Tile.LAVA);
+					break;
+					
 				// blob spawner
 				case '@':
 					currRow.add(Tile.FLOOR);
@@ -97,6 +102,12 @@ public class LevelLoader {
 					level.blueGenes.add(currGridPosition);
 					break;
 					
+				// red gene
+				case 'r':
+					currRow.add(Tile.FLOOR);
+					level.redGenes.add(currGridPosition);
+					break;
+					
 				default:
 					throw new RuntimeException("Unknown tile token: " + token);
 			}
@@ -108,6 +119,7 @@ public class LevelLoader {
 		// since the level is loaded from top-to-bottom need to invert all y-coords
 		invertY(level.blobStartPos, level.height);
 		level.blueGenes.forEach(pos -> invertY(pos, level.height));
+		level.redGenes.forEach(pos -> invertY(pos, level.height));
 		level.stars.forEach(pos -> invertY(pos, level.height));
 	}
 	
