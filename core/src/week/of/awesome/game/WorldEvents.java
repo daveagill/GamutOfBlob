@@ -5,4 +5,7 @@ public interface WorldEvents {
 	public void onCollectedGene();
 	public void onCollectedStar();
 	public void onLevelComplete();
+	
+	public void onButtonActivated();
+	public void onButtonDeactivated();
 }

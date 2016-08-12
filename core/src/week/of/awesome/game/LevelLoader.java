@@ -25,6 +25,12 @@ public class LevelLoader {
 		String mapData = xml.getChildByName("map").getText();
 		parseMap(mapData, level);
 		
+		for (Element shadowMaskXml : xml.getChildrenByName("shadow-mask")) {
+			ShadowMask mask = new ShadowMask();
+			parseShadowMask(shadowMaskXml.getText(), mask);
+			level.shadowMasks.add(mask);
+		}
+		
 		return level;
 	}
 	
@@ -99,13 +105,69 @@ public class LevelLoader {
 		level.width = currRow.size();
 		level.height = level.tiles.size();
 		
-		// sicne the level is loaded from top-to-bottom need to invert all y-coords
-		invertY(level.blobStartPos, level);
-		level.blueGenes.forEach(pos -> invertY(pos, level));
-		level.stars.forEach(pos -> invertY(pos, level));
+		// since the level is loaded from top-to-bottom need to invert all y-coords
+		invertY(level.blobStartPos, level.height);
+		level.blueGenes.forEach(pos -> invertY(pos, level.height));
+		level.stars.forEach(pos -> invertY(pos, level.height));
 	}
 	
-	private static void invertY(GridPos pos, Level level) {
-		pos.y = level.height-1 - pos.y;
+	private static void parseShadowMask(String shadowData, ShadowMask mask) {
+		int x = 0;
+		int y = 0;
+	
+		// parse tokens
+		int tokenIdx = 0;
+		while (tokenIdx < shadowData.length()) {
+			char token = shadowData.charAt(tokenIdx);
+			++tokenIdx;
+			
+			GridPos currGridPosition = new GridPos();
+			currGridPosition.x = x;
+			currGridPosition.y = y;
+			
+			switch (token) {
+				// newlines are a new row
+				case '\n':
+				case '\r':
+					if (x > 0) {
+						++y;
+						x = 0;
+					}
+					continue;
+					
+				// button tile
+				case 'o':
+					mask.buttons.add(currGridPosition);
+					break;
+				
+				// shadow tile
+				case 'x':
+					mask.shadows.add(currGridPosition);
+					break;
+					
+					// whitespace is irrelevant
+				case '\t':
+				case ' ':
+					continue;
+				
+				// empty tile
+				case '.':
+					break;
+				
+				default:
+					throw new RuntimeException("Unknown shadowmask token: " + token);
+			}
+			
+			++x;
+		}
+		
+		// since the level is loaded from top-to-bottom need to invert all y-coords
+		final int height = y+1;
+		mask.buttons.forEach(pos -> invertY(pos, height));
+		mask.shadows.forEach(pos -> invertY(pos, height));
+	}
+	
+	private static void invertY(GridPos pos, int height) {
+		pos.y = height-1 - pos.y;
 	}
 }

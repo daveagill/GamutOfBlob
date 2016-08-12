@@ -3,28 +3,42 @@ package week.of.awesome.game;
 import com.badlogic.gdx.math.Interpolation;
 
 public class BounceTween {
-	private float value = 0f;
-	private float tweenSign = 1f;
+	private float t = 0f;
+	private float initialValue;
 	private float speed;
 	
 	public BounceTween(float speed) {
 		this.speed = speed;
 	}
 	
-	public void update(float dt) {
-		value += dt * tweenSign * speed;
-		
-		if (value > 1f) {
-			value = 2f - value;
-			tweenSign = -1f;
+	public BounceTween(float speed, float initialValue) {
+		this.speed = speed;
+		this.initialValue = initialValue;
+	}
+	
+	public boolean update(float dt) {
+		t += (dt * speed);
+		if (t > 2) {
+			t = t-2;
+			return true;
 		}
-		else if (value < 0f) {
-			value = -value;
-			tweenSign = 1f;
-		}
+		return false;
 	}
 	
 	public float interpolate(float range) {
-		return Interpolation.pow2.apply(0, range, value);
+		return interpolate(range, Interpolation.pow2);
+	}
+	
+	public float interpolate(float range, Interpolation interpolation) {
+		float value = initialValue + t;
+		
+		while (value > 1f) {
+			value = value - 2;
+		}
+		if (value < 0f) {
+			value = -value;
+		}
+		
+		return interpolation.apply(0, range, value);
 	}
 }

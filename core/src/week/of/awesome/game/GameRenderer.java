@@ -11,6 +11,10 @@ import week.of.awesome.framework.RenderService;
 import week.of.awesome.game.Blob.Kind;
 
 public class GameRenderer {
+	private static final float OPAQUE = 1f;
+	private static final float SHADOW = 0.8f;
+	
+	
 	private static final float TILE_SIZE = 32f;
 	private static final float BOUNCE_AMOUNT = 0.2f;
 	
@@ -24,6 +28,9 @@ public class GameRenderer {
 	
 	private Texture blueGeneTex;
 	private Texture starTex;
+	
+	private Texture shadowTex;
+	private Texture lightButtonTex;
 	
 	private Texture floorTex;
 	private Texture waterTex;
@@ -46,6 +53,9 @@ public class GameRenderer {
 		
 		blueGeneTex = gfxResources.newTexture("blue-gene.png");
 		starTex = gfxResources.newTexture("star.png");
+		
+		shadowTex = gfxResources.newTexture("shadow.png");
+		lightButtonTex = gfxResources.newTexture("lightButton.png");
 		
 		floorTex = gfxResources.newTexture("floor.png");
 		waterTex = gfxResources.newTexture("water.png");
@@ -70,7 +80,14 @@ public class GameRenderer {
 		
 		// draw genes
 		for (GridPos geneGridPos : world.getBlueGenes()) {
-			drawSprite(blueGeneTex, new Vector2(geneGridPos.x, geneGridPos.y + pickupTween.interpolate(BOUNCE_AMOUNT)));
+			drawSprite(blueGeneTex, new Vector2(geneGridPos.x, geneGridPos.y + pickupTween.interpolate(BOUNCE_AMOUNT)), 1f);
+		}
+		
+		// draw light switches
+		for (ShadowAndButtonState shadowAndButtons : world.getShadowsAndButtons()) {
+			for (GridPos buttonPos : shadowAndButtons.getButtons()) {
+				drawSprite(lightButtonTex, new Vector2(buttonPos.x, buttonPos.y), 1f);
+			}
 		}
 		
 		// draw blobs
@@ -85,20 +102,30 @@ public class GameRenderer {
 	
 		// draw stars
 		for (GridPos starGridPos : world.getStars()) {
-			drawSprite(starTex, new Vector2(starGridPos.x, starGridPos.y));
+			drawSprite(starTex, new Vector2(starGridPos.x, starGridPos.y), 1f);
+		}
+		
+		// draw shadows
+		for (ShadowAndButtonState shadowAndButtons : world.getShadowsAndButtons()) {
+			if (!shadowAndButtons.isLightOn()) {
+				for (GridPos shadowPos : shadowAndButtons.getShadows()) {
+					drawGridCell(shadowTex, shadowPos, SHADOW);
+				}
+			}
 		}
 	}
 	
 	
-	private void drawMap(World world) {		
+	private void drawMap(World world) {
 		for (int j = world.getMapHeight(); j >= 0 ; --j) {
-			for (int i = 0; i < world.getMapWidth(); ++i) {
-				float x = i;
-				float y = j;
+			for (int i = 0; i < world.getMapWidth(); ++i) {		
+				GridPos pos = new GridPos();
+				pos.x = i;
+				pos.y = j;
 				
-				Tile t = world.tileAt(i, j);				
+				Tile t = world.tileAt(pos);				
 				if  (t != null) {
-					drawSprite(tileToTex(t), new Vector2(x,y));
+					drawGridCell(tileToTex(t), pos, OPAQUE);
 				}
 			}
 		}
@@ -124,14 +151,18 @@ public class GameRenderer {
 		throw new RuntimeException("Unmapped blob kind: " + k);
 	}
 	
-	private void drawSprite(Texture tex, Vector2 pos) {
+	private void drawGridCell(Texture tex, GridPos pos, float alpha) {
+		gfx.drawCenteredTinted(tex, new Vector2(pos.x, pos.y), 1f, 1f, false, new Color(1f, 1f, 1f, alpha));
+	}
+	
+	private void drawSprite(Texture tex, Vector2 pos, float scale) {
 		if (tex.getWidth() > tex.getHeight()) {
 			float ratio = ((float)tex.getHeight()) / tex.getWidth();
-			gfx.drawCentered(tex, pos, 1f, ratio, false);
+			gfx.drawCentered(tex, pos, scale, ratio * scale, false);
 		}
 		else {
 			float ratio = ((float)tex.getWidth()) / tex.getHeight();
-			gfx.drawCentered(tex, pos, ratio, 1f, false);
+			gfx.drawCentered(tex, pos, ratio * scale, scale, false);
 		}
 	}
 }

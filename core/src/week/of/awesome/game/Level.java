@@ -16,6 +16,7 @@ public class Level {
 	public Collection<GridPos> blueGenes = new ArrayList<>();
 	public Collection<GridPos> stars = new ArrayList<>();
 	
+	public Collection<ShadowMask> shadowMasks = new ArrayList<>();
 
 	public Tile tileAt(int x, int y) {
 		if (x < 0 || x >= width || y < 0 || y >= height) { return null; }

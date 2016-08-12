@@ -1,5 +1,6 @@
 package week.of.awesome.game;
 
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 
 import week.of.awesome.game.World.Direction;
@@ -12,10 +13,16 @@ public class Blob {
 	
 	
 	private static final float BLOB_SPEED = 8f;
+	private static final float SCARED_VIBRATE_AMOUNT = 0.2f;
 	
 	private GridPos blobPos;
 	private GridPos nextBlobPos;
-	private float blobTween = 1f;
+	private float moveTween = 1f;
+	
+	private Vector2 worldPos;
+	
+	private BounceTween scareTweener;
+	private int scaredCyclesRemaining;
 	
 	private Direction lastDirection;
 	private Direction queuedInput;
@@ -25,6 +32,7 @@ public class Blob {
 	public Blob(GridPos position, Kind kind) {
 		blobPos = position.cpy();
 		nextBlobPos = position.cpy();
+		worldPos = new Vector2(blobPos.x, blobPos.y);
 		this.kind = kind;
 	}
 	
@@ -33,11 +41,11 @@ public class Blob {
 	}
 	
 	public GridPos getGridPosition() {
-		return blobPos;
+		return blobPos.cpy();
 	}
 	
 	public Vector2 getPosition() {
-		return new Vector2(blobPos.x, blobPos.y).lerp(new Vector2(nextBlobPos.x, nextBlobPos.y), blobTween);
+		return worldPos.cpy();
 	}
 	
 	public void enqueueMovement(Direction d) {
@@ -46,8 +54,38 @@ public class Blob {
 		}
 	}
 	
+	public void becomeScared() {
+		if (isScared()) { return; }
+		scaredCyclesRemaining = 5;
+		scareTweener = new BounceTween(20, 0.5f);
+	}
+	
+	public boolean isScared() {
+		return scaredCyclesRemaining > 0;
+	}
+	
 	public boolean update(World tileMap, float dt) {
-		boolean readyToWalk = blobTween == 1f;
+		
+		boolean walkComplete = processTileMovement(tileMap, dt);
+		
+		// animate for scaredness
+		float scaredXOffset = 0f;
+		if (isScared()) {
+			if (scareTweener.update(dt)) {
+				--scaredCyclesRemaining;
+			}
+			scaredXOffset = scareTweener.interpolate(SCARED_VIBRATE_AMOUNT, Interpolation.linear) - SCARED_VIBRATE_AMOUNT/2;
+		}
+			
+		
+		worldPos = new Vector2(blobPos.x, blobPos.y).lerp(new Vector2(nextBlobPos.x, nextBlobPos.y), moveTween).add(scaredXOffset, 0);
+		
+		return walkComplete;
+	}
+	
+	
+	private boolean processTileMovement(World tileMap, float dt) {
+		boolean readyToWalk = moveTween == 1f;
 		if (readyToWalk) {
 			// dequeue the input
 			Direction d = queuedInput;
@@ -73,24 +111,28 @@ public class Blob {
 			
 			
 			// validate the transition (collision detection)
-			Tile t = tileMap.tileAt(nextPos.x, nextPos.y);
+			Tile t = tileMap.tileAt(nextPos);
 			boolean walkable = t != null;
 			if (kind != Kind.BLUE && t == Tile.WATER) { walkable = false; }
+			if (tileMap.isShadowAt(nextPos)) {
+				walkable = false;
+				becomeScared();
+			}
 			
 			// if walkable then kick off the transition
 			lastDirection = null;
 			if (walkable) {
 				this.nextBlobPos = nextPos;
 				lastDirection = d;
-				blobTween = 0f;
+				moveTween = 0f;
 			}
 		}
 		
-		if (blobTween < 1) {
-			blobTween = Math.min(1f, blobTween + BLOB_SPEED * dt);
+		if (moveTween < 1) {
+			moveTween = Math.min(1f, moveTween + BLOB_SPEED * dt);
 			
 			// commit to the new location when the transition completes
-			boolean walkComplete = blobTween == 1f;
+			boolean walkComplete = moveTween == 1f;
 			if (walkComplete) {
 				blobPos.set( nextBlobPos );
 				lastDirection = null;

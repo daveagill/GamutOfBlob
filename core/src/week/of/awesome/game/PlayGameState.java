@@ -41,6 +41,8 @@ public class PlayGameState implements GameState {
 	private Sound collectedGeneSound;
 	private Sound collectedStarSound;
 	private Sound switchBlobSound;
+	private Sound buttonActivatedSound;
+	private Sound buttonDeactivatedSound;
 	
 	
 	private WorldEvents eventHandler = new WorldEvents() {
@@ -72,6 +74,15 @@ public class PlayGameState implements GameState {
 			levelComplete = true;
 		}
 
+		@Override
+		public void onButtonActivated() {
+			buttonActivatedSound.play();
+		}
+		
+		@Override
+		public void onButtonDeactivated() {
+			buttonDeactivatedSound.play();
+		}
 	};
 	
 	public void setGameOverState(GameState gameOverState) {
@@ -99,11 +110,13 @@ public class PlayGameState implements GameState {
 		collectedGeneSound = services.sfxResources.newSound("collectedGene.wav");
 		collectedStarSound = services.sfxResources.newSound("collectedStar.wav");
 		switchBlobSound = services.sfxResources.newSound("switchBlob.wav");
+		buttonActivatedSound = services.sfxResources.newSound("buttonActivated.wav");
+		buttonDeactivatedSound = services.sfxResources.newSound("buttonDeactivated.wav");
 	}
 
 	@Override
 	public GameState update(float dt) {
-		if (!directionStack.isEmpty()) {
+		if (!ignoreInputs && !directionStack.isEmpty()) {
 			world.moveBlob(directionStack.getLast());
 		}
 		
@@ -143,8 +156,6 @@ public class PlayGameState implements GameState {
 			
 			@Override
 			public boolean keyDown(int keycode) {
-				if (ignoreInputs) { return false; }
-				
 				Direction direction = mapToDirection(keycode);
 				if (direction != null) {
 					directionStack.addLast(direction);

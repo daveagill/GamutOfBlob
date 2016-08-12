@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.badlogic.gdx.math.Vector2;
 
@@ -21,6 +22,7 @@ public class World {
 	private List<Blob> blobs;
 	private Collection<GridPos> activeBlueGenes;
 	private Collection<GridPos> activeStars;
+	private Collection<ShadowAndButtonState> shadowsAndButtons;
 	
 	private int numStarsCollected;
 	
@@ -30,6 +32,7 @@ public class World {
 		blobs.add(new Blob(level.blobStartPos, Kind.GREEN));
 		activeBlueGenes = new HashSet<>(level.blueGenes);
 		activeStars = new HashSet<>(level.stars);
+		shadowsAndButtons = level.shadowMasks.stream().map(ShadowAndButtonState::new).collect(Collectors.toList());
 		
 		activeBlobIdx = 0;
 		numStarsCollected = 0;
@@ -43,12 +46,22 @@ public class World {
 		return level.height;
 	}
 	
-	public Tile tileAt(int i, int j) {
-		return level.tileAt(i, j);
+	public Tile tileAt(GridPos pos) {
+		return level.tileAt(pos.x, pos.y);
 	}
 	
-	public Tile tileAt(GridPos pos) {
-		return tileAt(pos.x, pos.y);
+	public boolean isShadowAt(GridPos pos) {
+		for (ShadowAndButtonState shadowsAndButton : shadowsAndButtons) {
+			if (shadowsAndButton.isShadowAt(pos)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public Collection<ShadowAndButtonState> getShadowsAndButtons() {
+		return shadowsAndButtons;
 	}
 	
 	public Collection<GridPos> getStars() {
@@ -82,6 +95,7 @@ public class World {
 	}
 	
 	public void update(float dt, WorldEvents events) {
+		GridPos oldBlobPos = activeBlob().getGridPosition();
 		boolean onNewTile = activeBlob().update(this, dt);
 		
 		if (onNewTile) {
@@ -107,6 +121,19 @@ public class World {
 					events.onLevelComplete();
 				}
 			}
+			
+			// activate and deactivate buttons
+			for (ShadowAndButtonState shadowsAndButton : shadowsAndButtons) {
+				if (shadowsAndButton.activateButton(blobGridPos)) {
+					events.onButtonActivated();
+				}
+			}
+			for (ShadowAndButtonState shadowsAndButton : shadowsAndButtons) {
+				if (shadowsAndButton.deactivateButton(oldBlobPos)) {
+					events.onButtonDeactivated();
+				}
+			}
+			
 			
 			events.onBlobMoved(tile);
 		}
