@@ -12,6 +12,7 @@ import com.badlogic.gdx.Input.Keys;
 
 import week.of.awesome.framework.GameState;
 import week.of.awesome.framework.Services;
+import week.of.awesome.game.AmbientMusic.Mood;
 import week.of.awesome.game.World.Direction;
 
 public class PlayGameState implements GameState {
@@ -33,6 +34,7 @@ public class PlayGameState implements GameState {
 	private Deque<Direction> directionStack = new ArrayDeque<>();
 	private boolean ignoreInputs;
 	
+	private AmbientMusic music;
 	private GameRenderer renderer;
 	private World world;
 	
@@ -102,6 +104,7 @@ public class PlayGameState implements GameState {
 		directionStack.clear();
 		ignoreInputs = true;
 		
+		if (music == null) { music = new AmbientMusic(services.jukebox); }
 		renderer = new GameRenderer(services.gfxResources, services.gfx);
 		world = new World(filenameForLevel(levelNum));
 		
@@ -112,6 +115,8 @@ public class PlayGameState implements GameState {
 		switchBlobSound = services.sfxResources.newSound("switchBlob.wav");
 		buttonActivatedSound = services.sfxResources.newSound("buttonActivated.wav");
 		buttonDeactivatedSound = services.sfxResources.newSound("buttonDeactivated.wav");
+		
+		music.playNext(Mood.COMFORTABLE);
 	}
 
 	@Override
