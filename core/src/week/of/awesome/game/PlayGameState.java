@@ -147,6 +147,8 @@ public class PlayGameState implements GameState {
 				
 		renderer.draw(world, dt);
 		
+		renderer.drawDialog("hello");
+		
 		if (fadeIn > 0) {
 			renderer.drawFade(fadeIn);
 		}

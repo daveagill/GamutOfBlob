@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -75,6 +76,10 @@ public class RenderService implements Disposable {
 		batch.setColor(colour);
 		batch.draw(t, pos.x - actualWidth/2, pos.y - height/2, actualWidth, height);
 		batch.setColor(Color.WHITE);
+	}
+	
+	public void drawFont(BitmapFont font, String str, float x, float y) {
+		font.draw(batch, str, x, y);
 	}
 
 	@Override

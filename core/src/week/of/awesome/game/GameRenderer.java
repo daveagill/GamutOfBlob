@@ -3,6 +3,7 @@ package week.of.awesome.game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 
@@ -41,6 +42,8 @@ public class GameRenderer {
 	private Texture waterTex;
 	private Texture lavaTex;
 	
+	private BitmapFont dialogFont;
+	
 	private BounceTween blobHeightTween = new BounceTween(2.2f);
 	private BounceTween pickupTween = new BounceTween(1f);
 	private BounceTween indicatorTween = new BounceTween(1f);
@@ -64,6 +67,24 @@ public class GameRenderer {
 		floorTex = newTexture(gfxResources, "floor.png");
 		waterTex = newTexture(gfxResources, "water.png");
 		lavaTex = newTexture(gfxResources, "lava.png");
+		
+		dialogFont = newFont(gfxResources, "Montserrat-Bold.fnt");
+	}
+	
+	public void drawDialog(String text) {
+		gfx.setTransformMatrix(new Matrix4());
+		
+		int dialogX = 100;
+		int dialogY = 80;
+		int dialogHeight = 100;
+		int dialogWidth = 300;
+		
+		
+		gfx.draw(lavaTex, new Vector2(dialogX, dialogY - dialogHeight/2f), dialogWidth, dialogHeight, 0.5f);
+		
+		
+		dialogFont.setColor(1, 1, 1, 1);
+		gfx.drawFont(dialogFont, text, dialogX, dialogY);
 	}
 	
 	public void drawFade(float amount) {
@@ -193,5 +214,9 @@ public class GameRenderer {
 	
 	private static Texture newTexture(GraphicsResources gfxResources, String filename) {
 		return gfxResources.newTexture("sprites/" + filename);
+	}
+	
+	private static BitmapFont newFont(GraphicsResources gfxResources, String filename) {
+		return gfxResources.newFont("fonts/" + filename);
 	}
 }
