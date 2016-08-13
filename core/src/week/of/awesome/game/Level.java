@@ -18,6 +18,8 @@ public class Level {
 	public Collection<GridPos> stars = new ArrayList<>();
 	
 	public Collection<ShadowMask> shadowMasks = new ArrayList<>();
+	
+	public Collection<DialogConfig> dialogs = new ArrayList<>();
 
 	public Tile tileAt(int x, int y) {
 		if (x < 0 || x >= width || y < 0 || y >= height) { return null; }

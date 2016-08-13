@@ -12,12 +12,14 @@ public class Blob {
 	}
 	
 	
-	private static final float BLOB_SPEED = 8f;
+	private static final float FALL_SPEED = 3f;
+	private static final float WALK_SPEED = 8f;
 	private static final float SCARED_VIBRATE_AMOUNT = 0.2f;
 	
 	private GridPos blobPos;
 	private GridPos nextBlobPos;
-	private float moveTween = 1f;
+	private float moveTween = 0f;
+	private float speed;
 	
 	private Vector2 worldPos;
 	
@@ -31,9 +33,11 @@ public class Blob {
 	
 	public Blob(GridPos position, Kind kind) {
 		blobPos = position.cpy();
+		blobPos.y += 5;
 		nextBlobPos = position.cpy();
 		worldPos = new Vector2(blobPos.x, blobPos.y);
 		this.kind = kind;
+		this.speed = FALL_SPEED;
 	}
 	
 	public Kind getKind() {
@@ -87,6 +91,8 @@ public class Blob {
 	private boolean processTileMovement(World tileMap, float dt) {
 		boolean readyToWalk = moveTween == 1f;
 		if (readyToWalk) {
+			speed = WALK_SPEED;
+			
 			// dequeue the input
 			Direction d = queuedInput;
 			queuedInput = null;
@@ -132,7 +138,7 @@ public class Blob {
 		}
 		
 		if (moveTween < 1) {
-			moveTween = Math.min(1f, moveTween + BLOB_SPEED * dt);
+			moveTween = Math.min(1f, moveTween + speed * dt);
 			
 			// commit to the new location when the transition completes
 			boolean walkComplete = moveTween == 1f;

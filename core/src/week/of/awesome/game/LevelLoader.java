@@ -31,6 +31,12 @@ public class LevelLoader {
 			level.shadowMasks.add(mask);
 		}
 		
+		for (Element dialogXml : xml.getChildrenByName("dialog")) {
+			DialogConfig dialog = new DialogConfig();
+			parseDialog(dialogXml, dialog);
+			level.dialogs.add(dialog);
+		}
+		
 		return level;
 	}
 	
@@ -177,6 +183,28 @@ public class LevelLoader {
 		final int height = y+1;
 		mask.buttons.forEach(pos -> invertY(pos, height));
 		mask.shadows.forEach(pos -> invertY(pos, height));
+	}
+	
+	private static void parseDialog(Element dialogXml, DialogConfig dialog) {
+		String triggerGridPosText = dialogXml.get("trigger");
+		String[] xy = triggerGridPosText.split(",");
+		dialog.trigger = new GridPos();
+		dialog.trigger.x = Integer.parseInt(xy[0].trim());
+		dialog.trigger.y = Integer.parseInt(xy[1].trim());
+		
+		dialog.blocksGameplay = dialogXml.getBoolean("blocksGameplay", false);
+		
+		for (Element textXml : dialogXml.getChildrenByName("text")) {
+			float wait = textXml.getFloatAttribute("wait");
+			String text = textXml.getText();
+			boolean hasNewline = text.endsWith("\\n");
+			if (hasNewline) {
+				text = text.substring(0, text.length()-2);
+			}
+			dialog.text.add(text);
+			dialog.lineBreaks.add(hasNewline);
+			dialog.timings.add(wait);
+		}
 	}
 	
 	private static void invertY(GridPos pos, int height) {

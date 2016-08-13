@@ -32,7 +32,6 @@ public class PlayGameState implements GameState {
 	private float fadeOut;
 	
 	private Deque<Direction> directionStack = new ArrayDeque<>();
-	private boolean ignoreInputs;
 	
 	private AmbientMusic music;
 	private GameRenderer renderer;
@@ -102,7 +101,6 @@ public class PlayGameState implements GameState {
 		fadeOut = 0f;
 				
 		directionStack.clear();
-		ignoreInputs = true;
 		
 		if (music == null) { music = new AmbientMusic(services.jukebox); }
 		renderer = new GameRenderer(services.gfxResources, services.gfx);
@@ -121,12 +119,9 @@ public class PlayGameState implements GameState {
 
 	@Override
 	public GameState update(float dt) {
-		if (!ignoreInputs && !directionStack.isEmpty()) {
+		if (!directionStack.isEmpty()) {
 			world.moveBlob(directionStack.getLast());
 		}
-		
-		// enable control after the fadeIn
-		if (fadeIn == 0f) { ignoreInputs = false; }
 		
 		world.update(dt, eventHandler);
 		
@@ -146,8 +141,6 @@ public class PlayGameState implements GameState {
 		fadeOut = levelComplete ? Math.min(1f, fadeOut + dt * FADE_OUT_SPEED) : 0f;
 				
 		renderer.draw(world, dt);
-		
-		renderer.drawDialog("hello");
 		
 		if (fadeIn > 0) {
 			renderer.drawFade(fadeIn);

@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 
@@ -19,6 +20,9 @@ public class GameRenderer {
 	private static final float TILE_SIZE = 32f;
 	private static final float BOUNCE_AMOUNT = 0.2f;
 	private static final float BLOB_PULSATE_AMOUNT = 0.15f;
+	
+	private static final float DIALOG_LINEHEIGHT = 60f;
+	private static final float DIALOG_INDENT = 40f;
 	
 	private static final Color GREEN = new Color(170/255f, 212/255f, 0, 1);
 	private static final Color BLUE = new Color(0, 102/255f, 255/255f, 1);
@@ -43,6 +47,7 @@ public class GameRenderer {
 	private Texture lavaTex;
 	
 	private BitmapFont dialogFont;
+	private Texture dialogBgTex;
 	
 	private BounceTween blobHeightTween = new BounceTween(2.2f);
 	private BounceTween pickupTween = new BounceTween(1f);
@@ -68,23 +73,68 @@ public class GameRenderer {
 		waterTex = newTexture(gfxResources, "water.png");
 		lavaTex = newTexture(gfxResources, "lava.png");
 		
-		dialogFont = newFont(gfxResources, "Montserrat-Bold.fnt");
+		dialogFont = newFont(gfxResources, "trench.fnt");
+		dialogBgTex = newTexture(gfxResources, "dialogbg.png");
 	}
 	
-	public void drawDialog(String text) {
+	public void drawDialog(DialogState dialog, boolean atTop) {
+		//drawSprite(lavaTex, new Vector2(dialog.config.trigger.x, dialog.config.trigger.y));
+		
+		if (!dialog.active()) { return; }
 		gfx.setTransformMatrix(new Matrix4());
 		
-		int dialogX = 100;
-		int dialogY = 80;
-		int dialogHeight = 100;
-		int dialogWidth = 300;
+		// calculate height
+		float dialogHeight = DIALOG_LINEHEIGHT;
+		for (int i = 0; i < dialog.size(); ++i) {
+			dialogHeight += dialog.isLineBreak(i) ? DIALOG_LINEHEIGHT : 0f;
+		}
 		
+		int xOffset = 100;
+		int yOffset = 100;
 		
-		gfx.draw(lavaTex, new Vector2(dialogX, dialogY - dialogHeight/2f), dialogWidth, dialogHeight, 0.5f);
+		float bgBottomY = yOffset;
+		float textStartY = yOffset;
+		if (atTop) {
+			bgBottomY = gfx.getHeight() - bgBottomY - dialogHeight;
+			textStartY = gfx.getHeight() - textStartY - dialogHeight;
+		}
 		
+		float fudge = 10f; // a bit of upward offset to counter-act the fact that lineheight == fontsize + fudge*2
+		float padding = 25;
+		float bgMaxAlpha = 0.5f;
+		float bgAlpha = dialog.isFadingOut() ? Interpolation.linear.apply(0, bgMaxAlpha, dialog.getFade()) : bgMaxAlpha;
+		gfx.draw(dialogBgTex, new Vector2(0, bgBottomY + fudge - padding), gfx.getWidth(), dialogHeight + padding*2, bgAlpha);
 		
-		dialogFont.setColor(1, 1, 1, 1);
-		gfx.drawFont(dialogFont, text, dialogX, dialogY);
+		float x = xOffset;
+		float y = textStartY + dialogHeight;
+		boolean indentX = false;
+		for (int i = 0; i <= dialog.currentTextIdx(); ++i) {
+			
+			String text = dialog.getText(i);
+			String[] words = text.split(" ");
+			
+			for (int w = 0; w < words.length; ++w) {
+				float initialFadeValue = -w * 1f;
+				float alpha = 1f;
+				if (dialog.isFadingOut()) {
+					alpha = dialog.getFade();
+				}
+				else if (i == dialog.currentTextIdx()) {
+					alpha = Math.max(0f, Interpolation.linear.apply(initialFadeValue, 1f, dialog.getFade()));
+				}
+				
+				String str = words[w] + (w < words.length-1 ? " " : "");
+				
+				dialogFont.setColor(1, 1, 1, alpha);
+				x += gfx.drawFont(dialogFont, str, x, y).width;
+			}
+			
+			if (dialog.isLineBreak(i)) {
+				indentX = !indentX;
+				y -= DIALOG_LINEHEIGHT;
+				x  = xOffset + (indentX ? 40f : 0f);
+			}
+		}
 	}
 	
 	public void drawFade(float amount) {
@@ -146,6 +196,12 @@ public class GameRenderer {
 					drawGridCell(shadowTex, shadowPos, SHADOW);
 				}
 			}
+		}
+		
+		// draw dialog
+		boolean dialogAtTop = world.getActiveBlobPosition().y < world.getMapHeight() / 2f;
+		for (DialogState dialog : world.getDialogs()) {
+			drawDialog(dialog, dialogAtTop);
 		}
 	}
 	

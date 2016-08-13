@@ -25,6 +25,10 @@ public class World {
 	private Collection<GridPos> activeStars;
 	private Collection<ShadowAndButtonState> shadowsAndButtons;
 	
+	private Collection<DialogState> dialogs;
+	private boolean isMovementBlocked = false;
+	
+	private boolean isGameplayStarted = false;
 	private int numStarsCollected;
 	
 	public World(String levelFilename) {
@@ -35,6 +39,8 @@ public class World {
 		activeRedGenes = new HashSet<>(level.redGenes);
 		activeStars = new HashSet<>(level.stars);
 		shadowsAndButtons = level.shadowMasks.stream().map(ShadowAndButtonState::new).collect(Collectors.toList());
+
+		dialogs = level.dialogs.stream().map(DialogState::new).collect(Collectors.toList());
 		
 		activeBlobIdx = 0;
 		numStarsCollected = 0;
@@ -62,6 +68,10 @@ public class World {
 		return false;
 	}
 	
+	public Collection<DialogState> getDialogs() {
+		return dialogs;
+	}
+	
 	public Collection<ShadowAndButtonState> getShadowsAndButtons() {
 		return shadowsAndButtons;
 	}
@@ -87,7 +97,9 @@ public class World {
 	}
 	
 	public void moveBlob(Direction d) {
-		activeBlob().enqueueMovement(d);
+		if (!isMovementBlocked) {
+			activeBlob().enqueueMovement(d);
+		}
 	}
 	
 	public void switchBlob(boolean forward) {
@@ -101,11 +113,25 @@ public class World {
 	}
 	
 	public void update(float dt, WorldEvents events) {
-		GridPos oldBlobPos = activeBlob().getGridPosition();
-		boolean onNewTile = activeBlob().update(this, dt);
+		isMovementBlocked = !isGameplayStarted; // prevent movement until gameplay starts
+		for (DialogState d : dialogs) {
+			d.update(dt);
+			isMovementBlocked |= d.isBlockingGameplay(); // prevent movement when dialog is open
+		}
+		
+		for (int i = 0; i < blobs.size(); ++i) {
+			processBlob(dt, blobs.get(i), events);
+		}
+	}
+	
+	private void processBlob(float dt, Blob blob, WorldEvents events) {
+		GridPos oldBlobPos = blob.getGridPosition();
+		boolean onNewTile = blob.update(this, dt);
 		
 		if (onNewTile) {
-			GridPos blobGridPos = activeBlob().getGridPosition();
+			isGameplayStarted = true; // gameplay starts once the blob arrives at its first cell
+			
+			GridPos blobGridPos = blob.getGridPosition();
 			Tile tile = tileAt(blobGridPos);
 			
 			// blue gene pickups
@@ -138,6 +164,10 @@ public class World {
 				}
 			}
 			
+			// activate switches
+			for (DialogState d : dialogs) {
+				d.trigger(blobGridPos);
+			}
 			
 			events.onBlobMoved(tile);
 		}

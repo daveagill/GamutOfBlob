@@ -32,4 +32,10 @@
 		. . . . . . . . . . . x
 		. . . . . . . . . . . x
 	</shadow-mask>
+	<dialog trigger="0,7" blocksGameplay="false">
+		<text wait="2">Oh...</text>
+		<text wait="2">Hello!\n</text>
+		<text wait="0.5">My</text>
+		<text wait="5">, aren't you cute!</text>
+	</dialog>
 </level>
