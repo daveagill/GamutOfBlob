@@ -7,12 +7,15 @@ public class WoAGame extends StandardGameApp {
 
 	@Override
 	protected GameState setupGameStates() {
+		StartScreenState startScreenState = new StartScreenState();
 		PlayGameState playGameState = new PlayGameState();
-		GameOverState gameOverState = new GameOverState();
+		FinalStageState finalStageState = new FinalStageState();
 		
-		playGameState.setGameOverState(gameOverState);
+		startScreenState.setPlayGameState(playGameState);
+		playGameState.setGameOverState(finalStageState);
+		finalStageState.setRestartGameState(startScreenState);
 		
-		return playGameState;
+		return startScreenState;
 	}
 
 }

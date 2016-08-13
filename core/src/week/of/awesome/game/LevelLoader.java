@@ -196,7 +196,7 @@ public class LevelLoader {
 		
 		for (Element textXml : dialogXml.getChildrenByName("text")) {
 			float wait = textXml.getFloatAttribute("wait");
-			String text = textXml.getText();
+			String text = textXml.getText() == null ? "" : textXml.getText();
 			boolean hasNewline = text.endsWith("\\n");
 			if (hasNewline) {
 				text = text.substring(0, text.length()-2);

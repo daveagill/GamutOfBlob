@@ -64,6 +64,11 @@ public abstract class StandardGameApp implements ApplicationListener {
 				InputProcessor inputProcessor = nextState.getInputProcessor();
 				inputMultiplexer.removeProcessor(0);
 				inputMultiplexer.addProcessor(0, inputProcessor);
+				
+				// 
+				lastFrameTime = TimeUtils.nanoTime();
+				accumulatedTime = 0;
+				frameSimulationTime = 0;
 			}
 			
 			accumulatedTime -= FIXED_TIMESTEP_NANOS;

@@ -79,7 +79,8 @@ public class RenderService implements Disposable {
 		batch.setColor(Color.WHITE);
 	}
 	
-	public GlyphLayout drawFont(BitmapFont font, String str, float x, float y) {
+	public GlyphLayout drawFont(BitmapFont font, String str, float x, float y, float alpha) {
+		font.setColor(1, 1, 1, alpha);
 		return font.draw(batch, str, x, y);
 	}
 

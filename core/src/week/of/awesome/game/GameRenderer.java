@@ -1,5 +1,7 @@
 package week.of.awesome.game;
 
+import java.util.Collection;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
@@ -22,11 +24,10 @@ public class GameRenderer {
 	private static final float BLOB_PULSATE_AMOUNT = 0.15f;
 	
 	private static final float DIALOG_LINEHEIGHT = 60f;
-	private static final float DIALOG_INDENT = 40f;
 	
-	private static final Color GREEN = new Color(170/255f, 212/255f, 0, 1);
-	private static final Color BLUE = new Color(0, 102/255f, 255/255f, 1);
-	private static final Color RED = new Color(255/255f, 0, 0, 1);
+	public static final Color GREEN = new Color(170/255f, 212/255f, 0, 1);
+	public static final Color BLUE = new Color(0, 102/255f, 255/255f, 1);
+	public static final Color RED = new Color(255/255f, 0, 0, 1);
 	
 	private RenderService gfx;
 	
@@ -56,8 +57,7 @@ public class GameRenderer {
 	public GameRenderer(GraphicsResources gfxResources, RenderService gfx) {
 		this.gfx = gfx;
 		
-		fadeTex = newTexture(gfxResources, "water.png");
-		fadeTex.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
+		fadeTex = newTexture(gfxResources, "whiteFade.png");
 		
 		blobTex = newTexture(gfxResources, "blob-base.png");
 		blobOverlayTex = newTexture(gfxResources, "blob-overlay.png");
@@ -125,8 +125,7 @@ public class GameRenderer {
 				
 				String str = words[w] + (w < words.length-1 ? " " : "");
 				
-				dialogFont.setColor(1, 1, 1, alpha);
-				x += gfx.drawFont(dialogFont, str, x, y).width;
+				x += gfx.drawFont(dialogFont, str, x, y, alpha).width;
 			}
 			
 			if (dialog.isLineBreak(i)) {

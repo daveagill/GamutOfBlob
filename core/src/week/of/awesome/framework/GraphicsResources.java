@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.Disposable;
 
@@ -17,6 +18,7 @@ public class GraphicsResources implements Disposable {
 		Texture t = textureCache.get(path);
 		if (t == null) {
 			t = new Texture(path);
+			t.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 			textureCache.put(path, t);
 		}
 		return t;
