@@ -50,12 +50,12 @@ public class PlayGameState implements GameState {
 
 		@Override
 		public void onBlobMoved(Tile tile) {
-			if (tile == Tile.WATER) {
-				blobTreadWaterSound.play();
-			}
-			else {
+			//if (tile == Tile.WATER) {
+			//	blobTreadWaterSound.play();
+			//}
+			//else {
 				blobMovedSound.play(0.5f);
-			}
+			//}
 		}
 
 		@Override

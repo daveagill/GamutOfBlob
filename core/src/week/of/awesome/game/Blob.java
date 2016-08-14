@@ -8,13 +8,14 @@ import week.of.awesome.game.World.Direction;
 public class Blob {
 	
 	public static enum Kind {
-		GREEN, BLUE, RED
+		BASIC, WATER, LAVA, TELEPORT
 	}
 	
 	
 	private static final float FALL_SPEED = 3f;
 	private static final float WALK_SPEED = 8f;
 	private static final float SCARED_VIBRATE_AMOUNT = 0.2f;
+	private static final float TELEPORT_SPEED = 2f;
 	
 	private GridPos blobPos;
 	private GridPos nextBlobPos;
@@ -25,6 +26,10 @@ public class Blob {
 	
 	private BounceTween scareTweener;
 	private int scaredCyclesRemaining;
+	
+	private GridPos teleportTo;
+	private float teleportOutTween;
+	private float teleportInTween;
 	
 	private Direction lastDirection;
 	private Direction queuedInput;
@@ -68,9 +73,23 @@ public class Blob {
 		return scaredCyclesRemaining > 0;
 	}
 	
-	public boolean update(World tileMap, float dt, boolean movementBlocked) {
+	public void teleportTo(GridPos destination) {
+		queuedInput = null;
 		
-		boolean walkComplete = processTileMovement(tileMap, dt, movementBlocked);
+		teleportTo = destination.cpy();
+		teleportOutTween = 1f;
+		teleportInTween = 0f;
+	}
+	
+	public float getTeleportFade() {
+		return teleportTo == null ? 1f : Math.max(teleportInTween, teleportOutTween);
+	}
+	
+	public boolean update(World tileMap, float dt, boolean gameNotReadyToMove) {
+		
+		boolean isTeleporting = teleportTo != null;
+		
+		boolean walkComplete = processTileMovement(tileMap, dt, gameNotReadyToMove || isTeleporting);
 		
 		// animate for scaredness
 		float scaredXOffset = 0f;
@@ -80,7 +99,26 @@ public class Blob {
 			}
 			scaredXOffset = scareTweener.interpolate(SCARED_VIBRATE_AMOUNT, 0.5f, Interpolation.linear) - SCARED_VIBRATE_AMOUNT/2;
 		}
-			
+		
+		// animate teleportation
+		if (isTeleporting) {
+			if (teleportOutTween > 0f) {
+				teleportOutTween = Math.max(0f, teleportOutTween - dt * TELEPORT_SPEED);
+				
+				// move blob to the destination
+				if (teleportOutTween == 0) {
+					blobPos = teleportTo.cpy();
+					nextBlobPos = teleportTo.cpy();
+				}
+			}
+			else if (teleportInTween < 1f) {
+				teleportInTween = Math.min(1f, teleportInTween + dt * TELEPORT_SPEED);
+			}
+			else {
+				teleportTo = null; // disable teleportation
+				walkComplete = true;
+			}
+		}
 		
 		worldPos = new Vector2(blobPos.x, blobPos.y).lerp(new Vector2(nextBlobPos.x, nextBlobPos.y), moveTween).add(scaredXOffset, 0);
 		
@@ -124,8 +162,8 @@ public class Blob {
 			Tile t = tileMap.tileAt(nextPos);
 			boolean walkable = t != null;
 			boolean scary = false;
-			if (kind != Kind.BLUE && t == Tile.WATER) { walkable = false; scary = true; }
-			if (kind != Kind.RED && t == Tile.LAVA) { walkable = false; scary = true;  }
+			if (kind != Kind.WATER && t == Tile.WATER) { walkable = false; scary = true; }
+			if (kind != Kind.LAVA && t == Tile.LAVA) { walkable = false; scary = true;  }
 			if (tileMap.isShadowAt(nextPos)) { walkable = false; scary = true; }
 			
 			if (scary && t != null) {
@@ -147,7 +185,7 @@ public class Blob {
 			// commit to the new location when the transition completes
 			boolean walkComplete = moveTween == 1f;
 			if (walkComplete) {
-				blobPos.set( nextBlobPos );
+				blobPos = nextBlobPos.cpy();
 				lastDirection = null;
 				return true;
 			}

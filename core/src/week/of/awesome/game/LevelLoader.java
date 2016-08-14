@@ -31,6 +31,12 @@ public class LevelLoader {
 			level.shadowMasks.add(mask);
 		}
 		
+		for (Element teleportXml : xml.getChildrenByName("teleport")) {
+			TeleportConfig teleport = new TeleportConfig();
+			parseTeleport(teleportXml, teleport, level.height);
+			level.teleports.add(teleport);
+		}
+		
 		for (Element dialogXml : xml.getChildrenByName("dialog")) {
 			DialogConfig dialog = new DialogConfig();
 			parseDialog(dialogXml, dialog);
@@ -111,13 +117,19 @@ public class LevelLoader {
 				// blue gene
 				case 'b':
 					currRow.add(Tile.FLOOR);
-					level.blueGenes.add(currGridPosition);
+					level.waterGenes.add(currGridPosition);
 					break;
 					
 				// red gene
 				case 'r':
 					currRow.add(Tile.FLOOR);
-					level.redGenes.add(currGridPosition);
+					level.lavaGenes.add(currGridPosition);
+					break;
+					
+				// yellow gene
+				case 'g':
+					currRow.add(Tile.FLOOR);
+					level.teleGenes.add(currGridPosition);
 					break;
 					
 				default:
@@ -131,8 +143,9 @@ public class LevelLoader {
 		// since the level is loaded from top-to-bottom need to invert all y-coords
 		invertY(level.titlePos, level.height);
 		invertY(level.blobStartPos, level.height);
-		level.blueGenes.forEach(pos -> invertY(pos, level.height));
-		level.redGenes.forEach(pos -> invertY(pos, level.height));
+		level.waterGenes.forEach(pos -> invertY(pos, level.height));
+		level.lavaGenes.forEach(pos -> invertY(pos, level.height));
+		level.teleGenes.forEach(pos -> invertY(pos, level.height));
 		level.stars.forEach(pos -> invertY(pos, level.height));
 	}
 	
@@ -192,12 +205,14 @@ public class LevelLoader {
 		mask.shadows.forEach(pos -> invertY(pos, height));
 	}
 	
+	private static void parseTeleport(Element teleportXml, TeleportConfig teleport, int levelHeight) {
+		teleport.padPos = parseGridPos( teleportXml.get("from") );
+		teleport.targetPos = parseGridPos( teleportXml.get("to") );
+	}
+	
 	private static void parseDialog(Element dialogXml, DialogConfig dialog) {
 		String triggerGridPosText = dialogXml.get("trigger");
-		String[] xy = triggerGridPosText.split(",");
-		dialog.trigger = new GridPos();
-		dialog.trigger.x = Integer.parseInt(xy[0].trim());
-		dialog.trigger.y = Integer.parseInt(xy[1].trim());
+		dialog.trigger = parseGridPos(triggerGridPosText);
 		
 		dialog.blocksGameplay = dialogXml.getBoolean("blocksGameplay", false);
 		
@@ -218,6 +233,14 @@ public class LevelLoader {
 			dialog.indents.add(indents);
 			dialog.timings.add(wait);
 		}
+	}
+	
+	private static GridPos parseGridPos(String gridPosText) {
+		String[] xy = gridPosText.split(",");
+		GridPos gridPos = new GridPos();
+		gridPos.x = Integer.parseInt(xy[0].trim());
+		gridPos.y = Integer.parseInt(xy[1].trim());
+		return gridPos;
 	}
 	
 	private static void invertY(GridPos pos, int height) {

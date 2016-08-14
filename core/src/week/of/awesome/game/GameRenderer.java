@@ -1,7 +1,5 @@
 package week.of.awesome.game;
 
-import java.util.Collection;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
@@ -31,6 +29,7 @@ public class GameRenderer {
 	public static final Color GREEN = new Color(170/255f, 212/255f, 0, 1);
 	public static final Color BLUE = new Color(0, 102/255f, 255/255f, 1);
 	public static final Color RED = new Color(255/255f, 0, 0, 1);
+	public static final Color SILVER = new Color(204/255f, 204/255f, 204/255f, 1);
 	
 	private RenderService gfx;
 	
@@ -46,6 +45,8 @@ public class GameRenderer {
 	
 	private Texture geneTex;
 	private Texture starTex;
+	
+	private Texture teleportTex;
 	
 	private Texture shadowTex;
 	private Texture lightButtonTex;
@@ -78,6 +79,8 @@ public class GameRenderer {
 		geneTex = newTexture(gfxResources, "gene.png");
 		starTex = newTexture(gfxResources, "star.png");
 		
+		teleportTex = newTexture(gfxResources, "teleport.png");
+		
 		shadowTex = newTexture(gfxResources, "shadow.png");
 		lightButtonTex = newTexture(gfxResources, "lightButton.png");
 		
@@ -92,8 +95,6 @@ public class GameRenderer {
 	}
 	
 	public void drawDialog(DialogState dialog, boolean atTop) {
-		//drawSprite(lavaTex, new Vector2(dialog.config.trigger.x, dialog.config.trigger.y));
-		
 		if (!dialog.active()) { return; }
 		gfx.setTransformMatrix(new Matrix4());
 		
@@ -163,31 +164,8 @@ public class GameRenderer {
 		pickupTween.update(dt);
 		indicatorTween.update(dt);
 		
-		float mapLeft = gfx.getMidX() - (world.getMapWidth()-1) * TILE_SIZE / 2f;
-		float mapBottom = gfx.getMidY() - (world.getMapHeight()-1) * TILE_SIZE / 2f;
-		
-		// move the map to follow the blob
-		if (world.isGameplayStarted()) {
-			float threshold = 100;
-			float leftThreshold = threshold;
-			float bottomThreshold = threshold;
-			float rightThreshold = gfx.getWidth() - threshold;
-			float topThreshold = gfx.getHeight() - threshold;
-			Vector2 blobScreenSpacePos = world.getActiveBlobPosition().scl(TILE_SIZE).add(mapLeft, mapBottom);
-			if (blobScreenSpacePos.x < leftThreshold) {
-				mapLeft += leftThreshold - blobScreenSpacePos.x;
-			}
-			else if (blobScreenSpacePos.x > rightThreshold) {
-				mapLeft -= blobScreenSpacePos.x - rightThreshold;
-			}
-			if (blobScreenSpacePos.y < bottomThreshold) {
-				mapBottom += bottomThreshold - blobScreenSpacePos.y;
-			}
-			else if (blobScreenSpacePos.y > topThreshold) {
-				mapBottom -= blobScreenSpacePos.y - topThreshold;
-			}
-		}
-		
+		float mapLeft = gfx.getMidX() - world.getCameraPosition().scl(TILE_SIZE).x;
+		float mapBottom = gfx.getMidY() - world.getCameraPosition().scl(TILE_SIZE).y;
 		
 		gfx.setTransformMatrix(new Matrix4());
 		gfx.drawScreen(mainBgTex, 1f);
@@ -204,11 +182,19 @@ public class GameRenderer {
 		drawMap(world);
 		
 		// draw genes
-		for (GridPos geneGridPos : world.getBlueGenes()) {
+		for (GridPos geneGridPos : world.getWaterGenes()) {
 			drawTintedSprite(geneTex, new Vector2(geneGridPos.x, geneGridPos.y + pickupTween.interpolate(BOUNCE_AMOUNT)), BLUE);
 		}
-		for (GridPos geneGridPos : world.getRedGenes()) {
+		for (GridPos geneGridPos : world.getLavaGenes()) {
 			drawTintedSprite(geneTex, new Vector2(geneGridPos.x, geneGridPos.y + pickupTween.interpolate(BOUNCE_AMOUNT)), RED);
+		}
+		for (GridPos geneGridPos : world.getTeleGenes()) {
+			drawTintedSprite(geneTex, new Vector2(geneGridPos.x, geneGridPos.y + pickupTween.interpolate(BOUNCE_AMOUNT)), SILVER);
+		}
+		
+		// draw teleports
+		for (TeleportConfig teleport : world.getTeleports()) {
+			drawSprite(teleportTex, new Vector2(teleport.padPos.x, teleport.padPos.y), 0.8f, 0.8f);
 		}
 		
 		// draw light switches
@@ -224,13 +210,15 @@ public class GameRenderer {
 			++blobIdx;
 			float heightDelta = blobHeightTween.interpolate(BLOB_PULSATE_AMOUNT, blobIdx * 0.3f);
 			Vector2 position = blob.getPosition().add(0, heightDelta/2);
-			drawTintedSprite(blobTex, position, 1f, 1f+heightDelta, kindToColour(blob.getKind()));
-			drawSprite(blobOverlayTex, position, 1f, 1f+heightDelta);
-		}
-		
-		// draw active blob indicator
-		gfx.drawCentered(activeIndicatorTex, world.getActiveBlobPosition().cpy().add(0, 0.5f + indicatorTween.interpolate(0.5f)), activeIndicatorTex.getWidth() / TILE_SIZE, activeIndicatorTex.getHeight() / TILE_SIZE, false);
-	
+			
+			Color c = new Color(kindToColour(blob.getKind()));
+			c.a = blob.getTeleportFade();
+			
+			Color overlayColor = new Color(1f, 1f, 1f, c.a);
+			
+			drawTintedSprite(blobTex, position, 1f, 1f+heightDelta, c);
+			drawTintedSprite(blobOverlayTex, position, 1f, 1f+heightDelta, overlayColor);
+		}	
 	
 		// draw stars
 		for (GridPos starGridPos : world.getStars()) {
@@ -245,6 +233,9 @@ public class GameRenderer {
 				}
 			}
 		}
+		
+		// draw active blob indicator
+		gfx.drawCentered(activeIndicatorTex, world.getActiveBlobPosition().cpy().add(0, 0.5f + indicatorTween.interpolate(0.5f)), activeIndicatorTex.getWidth() / TILE_SIZE, activeIndicatorTex.getHeight() / TILE_SIZE, false);
 		
 		// draw dialog
 		boolean dialogAtTop = false;//world.getActiveBlobPosition().y < world.getMapHeight() / 2f;
@@ -281,9 +272,10 @@ public class GameRenderer {
 	
 	private Color kindToColour(Kind k) {
 		switch (k) {
-			case GREEN: return GREEN;
-			case BLUE: return BLUE;
-			case RED: return RED;
+			case BASIC: return GREEN;
+			case WATER: return BLUE;
+			case LAVA: return RED;
+			case TELEPORT: return SILVER;
 		}
 		
 		throw new RuntimeException("Unmapped blob kind: " + k);

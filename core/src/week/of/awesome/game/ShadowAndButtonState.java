@@ -37,7 +37,7 @@ public class ShadowAndButtonState {
 	}
 	
 	public boolean isLightOn() {
-		return buttonsPushed.size() == numPushed;
+		return buttonsPushed.size() == numPushed && !buttonsPushed.isEmpty();
 	}
 	
 	public boolean isShadowAt(GridPos pos) {

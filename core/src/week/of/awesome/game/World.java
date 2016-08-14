@@ -18,10 +18,13 @@ public class World {
 	
 	private Level level;
 	
-	int activeBlobIdx;
+	private Vector2 cameraPos;
+	
+	private int activeBlobIdx;
 	private List<Blob> blobs;
-	private Collection<GridPos> activeBlueGenes;
-	private Collection<GridPos> activeRedGenes;
+	private Collection<GridPos> activeWaterGenes;
+	private Collection<GridPos> activeLavaGenes;
+	private Collection<GridPos> activeTeleGenes;
 	private Collection<GridPos> activeStars;
 	private Collection<ShadowAndButtonState> shadowsAndButtons;
 	
@@ -33,10 +36,13 @@ public class World {
 	
 	public World(String levelFilename) {
 		this.level = LevelLoader.load(levelFilename);
+		cameraPos = new Vector2(level.blobStartPos.x, level.blobStartPos.y);
+		
 		blobs = new ArrayList<>();
-		blobs.add(new Blob(level.blobStartPos, Kind.GREEN));
-		activeBlueGenes = new HashSet<>(level.blueGenes);
-		activeRedGenes = new HashSet<>(level.redGenes);
+		blobs.add(new Blob(level.blobStartPos, Kind.BASIC));
+		activeWaterGenes = new HashSet<>(level.waterGenes);
+		activeLavaGenes = new HashSet<>(level.lavaGenes);
+		activeTeleGenes = new HashSet<>(level.teleGenes);
 		activeStars = new HashSet<>(level.stars);
 		shadowsAndButtons = level.shadowMasks.stream().map(ShadowAndButtonState::new).collect(Collectors.toList());
 
@@ -62,6 +68,10 @@ public class World {
 		return level.height;
 	}
 	
+	public Vector2 getCameraPosition() {
+		return cameraPos.cpy();
+	}
+	
 	public Tile tileAt(GridPos pos) {
 		return level.tileAt(pos.x, pos.y);
 	}
@@ -80,6 +90,10 @@ public class World {
 		return dialogs;
 	}
 	
+	public Collection<TeleportConfig> getTeleports() {
+		return level.teleports;
+	}
+	
 	public Collection<ShadowAndButtonState> getShadowsAndButtons() {
 		return shadowsAndButtons;
 	}
@@ -88,12 +102,16 @@ public class World {
 		return activeStars;
 	}
 	
-	public Collection<GridPos> getBlueGenes() {
-		return activeBlueGenes;
+	public Collection<GridPos> getWaterGenes() {
+		return activeWaterGenes;
 	}
 	
-	public Collection<GridPos> getRedGenes() {
-		return activeRedGenes;
+	public Collection<GridPos> getLavaGenes() {
+		return activeLavaGenes;
+	}
+	
+	public Collection<GridPos> getTeleGenes() {
+		return activeTeleGenes;
 	}
 	
 	public Collection<Blob> getBlobs() {
@@ -145,6 +163,27 @@ public class World {
 		for (int i = 0; i < blobs.size(); ++i) {
 			processBlob(dt, blobs.get(i), events);
 		}
+		
+		// update camera
+		float xThreshold = 6;
+		float yThreshold = 7;
+		float rightThreshold = cameraPos.x + xThreshold;
+		float leftThreshold = cameraPos.x - xThreshold;
+		float topThreshold = cameraPos.y + yThreshold;
+		float bottomThreshold = cameraPos.y - yThreshold;
+		Vector2 blobTrackingPosition = activeBlob().getPosition();
+		if (blobTrackingPosition.x > rightThreshold) {
+			cameraPos.x += blobTrackingPosition.x - rightThreshold;
+		}
+		else if (blobTrackingPosition.x < leftThreshold) {
+			cameraPos.x -= leftThreshold - blobTrackingPosition.x;
+		}
+		if (blobTrackingPosition.y > topThreshold) {
+			cameraPos.y += blobTrackingPosition.y - topThreshold;
+		}
+		else if (blobTrackingPosition.y < bottomThreshold) {
+			cameraPos.y -= bottomThreshold - blobTrackingPosition.y;
+		}
 	}
 	
 	private void processBlob(float dt, Blob blob, WorldEvents events) {
@@ -157,10 +196,11 @@ public class World {
 			GridPos blobGridPos = blob.getGridPosition();
 			Tile tile = tileAt(blobGridPos);
 			
-			// blue gene pickups
+			// gene pickups
 			boolean geneCollected = false;
-			geneCollected &= pickupGenes(activeBlueGenes, Kind.BLUE, blobGridPos);
-			geneCollected &= pickupGenes(activeRedGenes, Kind.RED, blobGridPos);
+			geneCollected &= pickupGenes(activeWaterGenes, Kind.WATER, blobGridPos);
+			geneCollected &= pickupGenes(activeLavaGenes, Kind.LAVA, blobGridPos);
+			geneCollected &= pickupGenes(activeTeleGenes, Kind.TELEPORT, blobGridPos);
 			if (geneCollected) {
 				events.onCollectedGene();
 			}
@@ -184,6 +224,13 @@ public class World {
 			for (ShadowAndButtonState shadowsAndButton : shadowsAndButtons) {
 				if (shadowsAndButton.deactivateButton(oldBlobPos)) {
 					events.onButtonDeactivated();
+				}
+			}
+			
+			// teleport pads
+			for (TeleportConfig teleport : getTeleports()) {
+				if (blob.getKind() == Kind.TELEPORT && blobGridPos.equals(teleport.padPos)) {
+					blob.teleportTo(teleport.targetPos);
 				}
 			}
 			

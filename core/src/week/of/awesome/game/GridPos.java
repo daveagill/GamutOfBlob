@@ -13,11 +13,6 @@ public class GridPos {
 		return cpy;
 	}
 	
-	public void set(GridPos other) {
-		x = other.x;
-		y = other.y;
-	}
-	
 	@Override
 	public boolean equals(Object o) {
 		return o instanceof GridPos && x == ((GridPos)o).x && y == ((GridPos)o).y;
