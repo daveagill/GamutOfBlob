@@ -1,41 +1,18 @@
-<level name="So it begins">
+<level name="A journey begins...">
 	<map>
-		. . . . . o o o . . . .
-		@ o o o o o . o o b o .
-		. . . . . o o o o o o o
-		. . . o r o . . w . . l
-		. . . o o o . . w . l l
-		. . . * o o . . w . l l
-		. . . . . . . . * . l l
-		. . . . . . . . . . . l
-		. . . . . . . . . . . *
+		@ o o o o . . . .
+		. . . . o T . . .
+		. . . . o o o o *
 	</map>
-	<shadow-mask>
-		. . . . . . . . . . . .
-		. . . . . . . . . . . .
-		. . . . x . . . . . o .
-		. . . x x . . . . . . .
-		. . . x x x . . . . . .
-		. . . x x x . . . . . .
-		. . . . . . . . . . . .
-		. . . . . . . . . . . .
-		. . . . . . . . . . . .
-	</shadow-mask>
-	<shadow-mask>
-		. . . . . . . . . . . .
-		. . . . . . . . . . . .
-		. . . . . . . . . . . .
-		. . . . . . . . . . . .
-		. . . . . . . . . . . .
-		. . . . . o . . . . x x
-		. . . . . . . . . . x x
-		. . . . . . . . . . . x
-		. . . . . . . . . . . x
-	</shadow-mask>
-	<dialog trigger="0,7" blocksGameplay="true">
+	<dialog trigger="0,2" blocksGameplay="true">
 		<text wait="2"></text>
 		<text wait="2">Oh...</text>
 		<text wait="2">Hello!\n</text>
-		<text wait="5">My, aren't you cute!</text>
+		<text wait="2">\tMy, aren't you cute!</text>
+	</dialog>
+	<dialog trigger="0,2" blocksGameplay="true">
+		<text wait="2">Come closer...\n</text>
+		<text wait="0">\tWASD or arrow keys\n</text>
+		<text wait="60">\tshould do it!</text>
 	</dialog>
 </level>

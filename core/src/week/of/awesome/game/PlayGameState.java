@@ -164,6 +164,9 @@ public class PlayGameState implements GameState {
 					world.switchBlob(true);
 					switchBlobSound.play();
 				}
+				else if (keycode == Keys.EQUALS) {
+					eventHandler.onLevelComplete();
+				}
 
 				return false;
 			}

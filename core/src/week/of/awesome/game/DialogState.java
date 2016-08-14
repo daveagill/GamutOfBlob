@@ -14,6 +14,7 @@ public class DialogState {
 	private int currText = 0;
 	
 	private boolean triggered;
+	private boolean active;
 	private boolean complete;
 
 	public DialogState(DialogConfig dialog) {
@@ -22,7 +23,8 @@ public class DialogState {
 	}
 	
 	public void update(float dt) {
-		if (!active()) { return; }
+		if (!pending()) { return; }
+		active = true;
 		
 		if (fadingIn) {
 			fade = Math.min(1, fade + dt * FADE_SPEED);
@@ -30,7 +32,8 @@ public class DialogState {
 		}
 		if (fadingOut) {
 			fade = Math.max(0f, fade - dt * FADE_SPEED);
-			complete = fade <= 0f;
+			active = fade > 0f;
+			complete = !active;
 		}
 		if (!fadingIn && !fadingOut) {
 			float t = timings.get(currText) - dt;
@@ -72,6 +75,10 @@ public class DialogState {
 		return config.lineBreaks.get(i);
 	}
 	
+	public int getIndentation(int i) {
+		return config.indents.get(i);
+	}
+	
 	public float getFade() {
 		return fade;
 	}
@@ -80,11 +87,15 @@ public class DialogState {
 		return fadingOut;
 	}
 	
-	public boolean active() {
+	public boolean pending() {
 		return triggered && !complete;
 	}
 	
+	public boolean active() {
+		return active;
+	}
+	
 	public boolean isBlockingGameplay() {
-		return currText < config.text.size()-1 && config.blocksGameplay;
+		return triggered && currText < config.text.size()-1 && config.blocksGameplay;
 	}
 }

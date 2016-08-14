@@ -1,0 +1,65 @@
+<level name="Three's a crowd...">
+	<map>
+		. . . . . T . .
+		o o o b o o o .
+		w . . o . . o .
+		w . . o . . o .
+		w w . @ . * o o
+		w * . o . * * r
+		w w . o . . . o
+		w . o o o . . .
+		o o o o o w w o
+		l l . . . . . .
+		l l l l l * . .
+	</map>
+	<shadow-mask>
+		. . . . . . . .
+		x . . . . . . .
+		x . . . . . . .
+		x . . . . . . .
+		x x . . . . . .
+		x x . . . . . .
+		x x . . . . . .
+		x . . . . . . .
+		x x . o . x x x
+		. . . . . . . .
+		. . . . . . . .
+	</shadow-mask>
+	<shadow-mask>
+		. . . . . . . .
+		. . . . . . . .
+		. . . . . . . .
+		. . . . . . . .
+		. . . . . . . .
+		. . . . . . . .
+		. . . . . . . o
+		. . . . . . . .
+		. . . . . . . .
+		x x . . . . . .
+		x x x x . . . .
+	</shadow-mask>
+	<shadow-mask>
+		. . . . . . . .
+		. . . . . . . .
+		. . . . . . . .
+		. . . . . . x .
+		. . . . . x x x
+		. . . . . x x x
+		. . . . . . . x
+		. . . . . . . .
+		. . . . . . . o
+		. . . . . . . .
+		. . . . . . . .
+	</shadow-mask>
+	<dialog trigger="7,2" blocksGameplay="true">
+		<text wait="1">Careful!</text>
+		<text wait="0">If your friends are\n</text>
+		<text wait="0">\ttrapped in the shadows\n</text>
+		<text wait="5">\tthey'll be too afraid to move!</text>
+	</dialog>
+	<dialog trigger="7,5" blocksGameplay="true">
+		<text wait="1">A red one!</text>
+		<text wait="0">Unusually tolerant to\n</text>
+		<text wait="5">\tintense heat!</text>
+	</dialog>
+</level>

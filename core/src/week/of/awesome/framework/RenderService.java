@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 
 public class RenderService implements Disposable {
@@ -62,6 +63,12 @@ public class RenderService implements Disposable {
 		batch.setTransformMatrix(m);
 	}
 	
+	public void drawScreen(Texture t, float alpha) {
+		batch.setColor(new Color(1f, 1f, 1f, alpha));
+		batch.draw(t, 0, 0, 0, 0, width, width);
+		batch.setColor(Color.WHITE);
+	}
+	
 	public void draw(Texture t, Vector2 pos, float width, float height, float alpha) {
 		batch.setColor(new Color(1f, 1f, 1f, alpha));
 		batch.draw(t, pos.x, pos.y, width, height);
@@ -82,6 +89,11 @@ public class RenderService implements Disposable {
 	public GlyphLayout drawFont(BitmapFont font, String str, float x, float y, float alpha) {
 		font.setColor(1, 1, 1, alpha);
 		return font.draw(batch, str, x, y);
+	}
+	
+	public GlyphLayout drawWrappedFont(BitmapFont font, String str, float x, float y, float width, float alpha) {
+		font.setColor(1, 1, 1, alpha);
+		return font.draw(batch, str, x, y, width/2f, Align.topLeft, true);
 	}
 
 	@Override

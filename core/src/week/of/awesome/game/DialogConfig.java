@@ -7,6 +7,7 @@ public class DialogConfig {
 	public List<String> text = new ArrayList<>();
 	public List<Float> timings = new ArrayList<>();
 	public List<Boolean> lineBreaks = new ArrayList<>();
+	public List<Integer> indents = new ArrayList<>();
 	public GridPos trigger;
 	public boolean blocksGameplay;
 }

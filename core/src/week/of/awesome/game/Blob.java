@@ -68,9 +68,9 @@ public class Blob {
 		return scaredCyclesRemaining > 0;
 	}
 	
-	public boolean update(World tileMap, float dt) {
+	public boolean update(World tileMap, float dt, boolean movementBlocked) {
 		
-		boolean walkComplete = processTileMovement(tileMap, dt);
+		boolean walkComplete = processTileMovement(tileMap, dt, movementBlocked);
 		
 		// animate for scaredness
 		float scaredXOffset = 0f;
@@ -88,7 +88,11 @@ public class Blob {
 	}
 	
 	
-	private boolean processTileMovement(World tileMap, float dt) {
+	private boolean processTileMovement(World tileMap, float dt, boolean movementBlocked) {
+		if (movementBlocked) { // scrap enqueued input
+			queuedInput = null;
+		}
+		
 		boolean readyToWalk = moveTween == 1f;
 		if (readyToWalk) {
 			speed = WALK_SPEED;

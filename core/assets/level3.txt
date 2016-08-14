@@ -1,0 +1,23 @@
+<level name="Beware the shadows...">
+	<map>
+		. . o o o @ . . .
+		. . o T . . . . .
+		o o o o o o o o b
+		w w w . . o o o o
+		w w w . . . . . o
+		* w w . . . . . o
+	</map>
+	<shadow-mask>
+		. . . . . . . . .
+		. . . . . . . . .
+		x x . . . . . . .
+		x x x . . . . . .
+		x x x . . . . . .
+		x x x . . . . . o
+	</shadow-mask>
+	<dialog trigger="2,3" blocksGameplay="true">
+		<text wait="1">Aww, scared of the dark?\n</text>
+		<text wait="0">\tYou'll have to find</text>
+		<text wait="5">\ta light switch!</text>
+	</dialog>
+</level>

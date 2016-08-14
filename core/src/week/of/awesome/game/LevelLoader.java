@@ -75,6 +75,12 @@ public class LevelLoader {
 					currRow.add(null);
 					break;
 					
+				// title tile
+				case 'T':
+					currRow.add(null);
+					level.titlePos = currGridPosition;
+					break;
+					
 				// floor tile
 				case 'o':
 					currRow.add(Tile.FLOOR);
@@ -123,6 +129,7 @@ public class LevelLoader {
 		level.height = level.tiles.size();
 		
 		// since the level is loaded from top-to-bottom need to invert all y-coords
+		invertY(level.titlePos, level.height);
 		invertY(level.blobStartPos, level.height);
 		level.blueGenes.forEach(pos -> invertY(pos, level.height));
 		level.redGenes.forEach(pos -> invertY(pos, level.height));
@@ -201,8 +208,14 @@ public class LevelLoader {
 			if (hasNewline) {
 				text = text.substring(0, text.length()-2);
 			}
+			int indents = 0;
+			while (text.startsWith("\\t")) {
+				text = text.substring(2);
+				++indents;
+			}
 			dialog.text.add(text);
 			dialog.lineBreaks.add(hasNewline);
+			dialog.indents.add(indents);
 			dialog.timings.add(wait);
 		}
 	}

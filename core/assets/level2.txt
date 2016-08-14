@@ -1,0 +1,25 @@
+<level name="One becomes two...">
+	<map>
+		. . . . @ . . . .
+		. . . . o T . . .
+		* . o o o o o o o
+		w . w w w . . o o
+		w w w w w w . o b
+	</map>
+	<dialog trigger="4,2" blocksGameplay="true">
+		<text wait="0">I wouldn't go in there\n</text>
+		<text wait="1">\tif I were you!</text>
+		<text wait="0">You don't look\n</text>
+		<text wait="2">\tvery buoyant...</text>
+	</dialog>
+	<dialog trigger="8,0" blocksGameplay="true">
+		<text wait="1">A friend!\n</text>
+		<text wait="0">\tPress SPACE to pay him</text>
+		<text wait="2">\ta visit</text>
+	</dialog>
+	<dialog trigger="1,0" blocksGameplay="true">
+		<text wait="2">Your friend can swim!\n</text>
+		<text wait="0.1">\tA genetic mutation!\n</text>
+		<text wait="5">\t\t...interesting...</text>
+	</dialog>
+</level>

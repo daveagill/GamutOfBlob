@@ -6,6 +6,7 @@ import java.util.List;
 
 public class Level {
 	public String name;
+	public GridPos titlePos = new GridPos();
 	
 	public List<List<Tile>> tiles = new ArrayList<>();
 	public int width;

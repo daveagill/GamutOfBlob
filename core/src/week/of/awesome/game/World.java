@@ -46,6 +46,14 @@ public class World {
 		numStarsCollected = 0;
 	}
 	
+	public String getMapName() {
+		return level.name;
+	}
+	
+	public GridPos getMapNamePosition() {
+		return level.titlePos;
+	}
+	
 	public int getMapWidth() {
 		return level.width;
 	}
@@ -97,26 +105,41 @@ public class World {
 	}
 	
 	public void moveBlob(Direction d) {
-		if (!isMovementBlocked) {
-			activeBlob().enqueueMovement(d);
-		}
+		activeBlob().enqueueMovement(d);
 	}
 	
 	public void switchBlob(boolean forward) {
-		activeBlobIdx += forward ? 1 : -1;
-		if (activeBlobIdx >= blobs.size()) { activeBlobIdx = 0; }
-		if (activeBlobIdx < 0) { activeBlobIdx = blobs.size()-1; }
+		int attemptsRemaining = blobs.size();
+		while (attemptsRemaining > 0) {
+			activeBlobIdx += forward ? 1 : -1;
+			if (activeBlobIdx >= blobs.size()) { activeBlobIdx = 0; }
+			if (activeBlobIdx < 0) { activeBlobIdx = blobs.size()-1; }
+			if (isShadowAt(activeBlob().getGridPosition())) { // skip shadowed blobs
+				--attemptsRemaining;
+				continue;
+			}
+			break;
+		}
 	}
 	
 	public int getNumStarsCollected() {
 		return numStarsCollected;
 	}
 	
+	public boolean isGameplayStarted() {
+		return isGameplayStarted;
+	}
+	
 	public void update(float dt, WorldEvents events) {
 		isMovementBlocked = !isGameplayStarted; // prevent movement until gameplay starts
 		for (DialogState d : dialogs) {
-			d.update(dt);
 			isMovementBlocked |= d.isBlockingGameplay(); // prevent movement when dialog is open
+		}
+		for (DialogState d : dialogs) {
+			if (d.pending()) {
+				d.update(dt);
+				break; // one at at time!
+			}
 		}
 		
 		for (int i = 0; i < blobs.size(); ++i) {
@@ -126,7 +149,7 @@ public class World {
 	
 	private void processBlob(float dt, Blob blob, WorldEvents events) {
 		GridPos oldBlobPos = blob.getGridPosition();
-		boolean onNewTile = blob.update(this, dt);
+		boolean onNewTile = blob.update(this, dt, isMovementBlocked);
 		
 		if (onNewTile) {
 			isGameplayStarted = true; // gameplay starts once the blob arrives at its first cell
@@ -164,7 +187,7 @@ public class World {
 				}
 			}
 			
-			// activate switches
+			// activate dialog
 			for (DialogState d : dialogs) {
 				d.trigger(blobGridPos);
 			}
@@ -178,7 +201,7 @@ public class World {
 			// generate a new blob offset to the left
 			GridPos newBlobPos = at.cpy();
 			newBlobPos.x -= 1;
-			blobs.add(new Blob(newBlobPos, kind));
+			blobs.add(activeBlobIdx+1, new Blob(newBlobPos, kind));
 			return true;
 		}
 		return false;

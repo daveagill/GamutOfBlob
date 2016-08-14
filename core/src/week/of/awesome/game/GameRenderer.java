@@ -23,6 +23,9 @@ public class GameRenderer {
 	private static final float BOUNCE_AMOUNT = 0.2f;
 	private static final float BLOB_PULSATE_AMOUNT = 0.15f;
 	
+	private static final float TITLE_SLIDE_IN_HEIGHT = 15f;
+	private static final float TITLE_ENTRANCE_SPEED = 1f;
+	
 	private static final float DIALOG_LINEHEIGHT = 60f;
 	
 	public static final Color GREEN = new Color(170/255f, 212/255f, 0, 1);
@@ -30,6 +33,10 @@ public class GameRenderer {
 	public static final Color RED = new Color(255/255f, 0, 0, 1);
 	
 	private RenderService gfx;
+	
+	private float titleFade = 0f;
+	
+	private Texture mainBgTex;
 	
 	private Texture fadeTex;
 	
@@ -50,12 +57,17 @@ public class GameRenderer {
 	private BitmapFont dialogFont;
 	private Texture dialogBgTex;
 	
+	private BitmapFont levelTitleFont;
+	
 	private BounceTween blobHeightTween = new BounceTween(2.2f);
 	private BounceTween pickupTween = new BounceTween(1f);
 	private BounceTween indicatorTween = new BounceTween(1f);
 	
 	public GameRenderer(GraphicsResources gfxResources, RenderService gfx) {
 		this.gfx = gfx;
+		
+		mainBgTex = newTexture(gfxResources, "mainbg.png");
+		mainBgTex.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
 		
 		fadeTex = newTexture(gfxResources, "whiteFade.png");
 		
@@ -75,6 +87,8 @@ public class GameRenderer {
 		
 		dialogFont = newFont(gfxResources, "trench.fnt");
 		dialogBgTex = newTexture(gfxResources, "dialogbg.png");
+		
+		levelTitleFont = newFont(gfxResources, "montserrat.fnt");
 	}
 	
 	public void drawDialog(DialogState dialog, boolean atTop) {
@@ -90,24 +104,24 @@ public class GameRenderer {
 		}
 		
 		int xOffset = 100;
-		int yOffset = 100;
+		int yOffset = 0;
+		float fudge = 10f; // a bit of upward offset to counter-act the fact that lineheight == fontsize + fudge*2
+		float padding = 25;
 		
 		float bgBottomY = yOffset;
 		float textStartY = yOffset;
 		if (atTop) {
-			bgBottomY = gfx.getHeight() - bgBottomY - dialogHeight;
-			textStartY = gfx.getHeight() - textStartY - dialogHeight;
+			bgBottomY = gfx.getHeight() - bgBottomY - dialogHeight - padding - fudge;
+			textStartY = gfx.getHeight() - textStartY - dialogHeight - padding - fudge;
 		}
 		
-		float fudge = 10f; // a bit of upward offset to counter-act the fact that lineheight == fontsize + fudge*2
-		float padding = 25;
+
 		float bgMaxAlpha = 0.5f;
 		float bgAlpha = dialog.isFadingOut() ? Interpolation.linear.apply(0, bgMaxAlpha, dialog.getFade()) : bgMaxAlpha;
 		gfx.draw(dialogBgTex, new Vector2(0, bgBottomY + fudge - padding), gfx.getWidth(), dialogHeight + padding*2, bgAlpha);
 		
 		float x = xOffset;
 		float y = textStartY + dialogHeight;
-		boolean indentX = false;
 		for (int i = 0; i <= dialog.currentTextIdx(); ++i) {
 			
 			String text = dialog.getText(i);
@@ -123,15 +137,18 @@ public class GameRenderer {
 					alpha = Math.max(0f, Interpolation.linear.apply(initialFadeValue, 1f, dialog.getFade()));
 				}
 				
-				String str = words[w] + (w < words.length-1 ? " " : "");
+				String str = words[w] + " ";
 				
 				x += gfx.drawFont(dialogFont, str, x, y, alpha).width;
 			}
 			
 			if (dialog.isLineBreak(i)) {
-				indentX = !indentX;
 				y -= DIALOG_LINEHEIGHT;
-				x  = xOffset + (indentX ? 40f : 0f);
+				float indent = 0;
+				if (i < dialog.currentTextIdx()) {
+					indent = dialog.getIndentation(i+1) * 40f;
+				}
+				x = xOffset + indent;
 			}
 		}
 	}
@@ -149,8 +166,40 @@ public class GameRenderer {
 		float mapLeft = gfx.getMidX() - (world.getMapWidth()-1) * TILE_SIZE / 2f;
 		float mapBottom = gfx.getMidY() - (world.getMapHeight()-1) * TILE_SIZE / 2f;
 		
-		gfx.setTransformMatrix(new Matrix4().translate(mapLeft, mapBottom, 0).scale(TILE_SIZE, TILE_SIZE, 1f));
+		// move the map to follow the blob
+		if (world.isGameplayStarted()) {
+			float threshold = 100;
+			float leftThreshold = threshold;
+			float bottomThreshold = threshold;
+			float rightThreshold = gfx.getWidth() - threshold;
+			float topThreshold = gfx.getHeight() - threshold;
+			Vector2 blobScreenSpacePos = world.getActiveBlobPosition().scl(TILE_SIZE).add(mapLeft, mapBottom);
+			if (blobScreenSpacePos.x < leftThreshold) {
+				mapLeft += leftThreshold - blobScreenSpacePos.x;
+			}
+			else if (blobScreenSpacePos.x > rightThreshold) {
+				mapLeft -= blobScreenSpacePos.x - rightThreshold;
+			}
+			if (blobScreenSpacePos.y < bottomThreshold) {
+				mapBottom += bottomThreshold - blobScreenSpacePos.y;
+			}
+			else if (blobScreenSpacePos.y > topThreshold) {
+				mapBottom -= blobScreenSpacePos.y - topThreshold;
+			}
+		}
 		
+		
+		gfx.setTransformMatrix(new Matrix4());
+		gfx.drawScreen(mainBgTex, 1f);
+		
+		// draw title text
+		titleFade = Math.min(1f, titleFade + dt * TITLE_ENTRANCE_SPEED);
+		Vector2 titlePos = new Vector2(world.getMapNamePosition().x, world.getMapNamePosition().y);
+		titlePos.scl(TILE_SIZE).add(mapLeft, mapBottom).sub(TILE_SIZE/3f, 0);
+		titlePos.y += Interpolation.linear.apply(TITLE_SLIDE_IN_HEIGHT, 0, titleFade);
+		gfx.drawFont(levelTitleFont, world.getMapName(), titlePos.x, titlePos.y, titleFade);
+
+		gfx.setTransformMatrix(new Matrix4().translate(mapLeft, mapBottom, 0).scale(TILE_SIZE, TILE_SIZE, 1f));
 		
 		drawMap(world);
 		
@@ -198,7 +247,7 @@ public class GameRenderer {
 		}
 		
 		// draw dialog
-		boolean dialogAtTop = world.getActiveBlobPosition().y < world.getMapHeight() / 2f;
+		boolean dialogAtTop = false;//world.getActiveBlobPosition().y < world.getMapHeight() / 2f;
 		for (DialogState dialog : world.getDialogs()) {
 			drawDialog(dialog, dialogAtTop);
 		}
