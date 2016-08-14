@@ -87,7 +87,7 @@ public class FinalStageState implements GameState {
 		
 		megaBlobTex = newTexture(services.gfxResources, "megaBlob.png");
 		
-		glowTex = newTexture(services.gfxResources, "water.png");
+		glowTex = newTexture(services.gfxResources, "glow.png");
 		
 		whiteFadeTex = newTexture(services.gfxResources, "whiteFade.png");
 		

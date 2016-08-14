@@ -53,9 +53,9 @@
 	</shadow-mask>
 	<dialog trigger="7,2" blocksGameplay="true">
 		<text wait="1">Careful!</text>
-		<text wait="0">If your friends are\n</text>
+		<text wait="0">If you get\n</text>
 		<text wait="0">\ttrapped in the shadows\n</text>
-		<text wait="5">\tthey'll be too afraid to move!</text>
+		<text wait="5">\tyou'll be too afraid to move!</text>
 	</dialog>
 	<dialog trigger="7,5" blocksGameplay="true">
 		<text wait="1">A red one!</text>

@@ -36,7 +36,7 @@ public class World {
 	
 	public World(String levelFilename) {
 		this.level = LevelLoader.load(levelFilename);
-		cameraPos = new Vector2(level.blobStartPos.x, level.blobStartPos.y);
+		cameraPos = new Vector2(level.width/2f, level.height/2f);
 		
 		blobs = new ArrayList<>();
 		blobs.add(new Blob(level.blobStartPos, Kind.BASIC));
