@@ -1,4 +1,4 @@
-<level name="The lab...">
+<level name="The lab..." music="Lightless Dawn.mp3">
 	<map>
 		@ . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 		o T . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -10,10 +10,19 @@
 		. . . . . . . o o o o o o o o o . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 		. . . . . . . . . . . . . . . . . . . . . . . o o o o o . . . . . . . o o o o o . . . . .
 	</map>
+	<dialog trigger="0,8" blocksGameplay="true">
+		<text wait="2"></text>
+		<text wait="0">Looks like you found an\n</text>
+		<text wait="3">\tan abandoned lab!\n</text>
+		<text wait="3">What could be in here?</text>
+	</dialog>
 	<dialog trigger="17,2" blocksGameplay="false">
-		<text wait="0">This evolved form can\n</text>
-		<text wait="0">\twithstand the molecular\n</text>
-		<text wait="3">\tstress of teleporation!</text>
+		<text wait="0.5">Amazing!</text>
+		<text wait="3">You can teleport!\n</text>
+	</dialog>
+	<dialog trigger="23,0" blocksGameplay="true">
+		<text wait="0.1">Press R to reset the level\n</text>
+		<text wait="3">\t... if you need to.</text>
 	</dialog>
 	<teleport from="15,2" to="17,2" />
 	<teleport from="21,2" to="23,0" />

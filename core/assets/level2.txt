@@ -1,4 +1,4 @@
-<level name="One becomes two...">
+<level name="One becomes two..." music="Cattails.mp3">
 	<map>
 		. . . . @ . . . .
 		. . . . o T . . .
@@ -13,13 +13,12 @@
 		<text wait="2">\tvery buoyant...</text>
 	</dialog>
 	<dialog trigger="8,0" blocksGameplay="true">
-		<text wait="1">A friend!\n</text>
+		<text wait="1">You evolved a friend!\n</text>
 		<text wait="0">\tPress SPACE to pay him</text>
 		<text wait="2">\ta visit</text>
 	</dialog>
 	<dialog trigger="1,0" blocksGameplay="true">
-		<text wait="2">Your friend can swim!\n</text>
-		<text wait="0.1">\tA genetic mutation!\n</text>
+		<text wait="2">Wow your friend can swim!\n</text>
 		<text wait="5">\t\t...interesting...</text>
 	</dialog>
 </level>

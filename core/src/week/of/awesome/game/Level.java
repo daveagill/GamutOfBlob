@@ -8,6 +8,8 @@ public class Level {
 	public String name;
 	public GridPos titlePos = new GridPos();
 	
+	public String music;
+	
 	public List<List<Tile>> tiles = new ArrayList<>();
 	public int width;
 	public int height;

@@ -1,4 +1,4 @@
-<level name="A journey begins...">
+<level name="A journey begins..." music="Cattails.mp3">
 	<map>
 		@ o o o o . . . .
 		. . . . o T . . .

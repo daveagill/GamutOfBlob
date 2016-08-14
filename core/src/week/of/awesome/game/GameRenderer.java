@@ -14,7 +14,7 @@ import week.of.awesome.game.Blob.Kind;
 
 public class GameRenderer {
 	private static final float OPAQUE = 1f;
-	private static final float SHADOW = 0.8f;
+	private static final float SHADOW = 0.93f;
 	
 	
 	private static final float TILE_SIZE = 32f;
@@ -29,7 +29,7 @@ public class GameRenderer {
 	public static final Color GREEN = new Color(170/255f, 212/255f, 0, 1);
 	public static final Color BLUE = new Color(0, 102/255f, 255/255f, 1);
 	public static final Color RED = new Color(255/255f, 0, 0, 1);
-	public static final Color SILVER = new Color(204/255f, 204/255f, 204/255f, 1);
+	public static final Color PINK = new Color(200/255f, 55/255f, 171/255f, 1f);//new Color(204/255f, 204/255f, 204/255f, 1);
 	
 	private RenderService gfx;
 	
@@ -189,7 +189,7 @@ public class GameRenderer {
 			drawTintedSprite(geneTex, new Vector2(geneGridPos.x, geneGridPos.y + pickupTween.interpolate(BOUNCE_AMOUNT)), RED);
 		}
 		for (GridPos geneGridPos : world.getTeleGenes()) {
-			drawTintedSprite(geneTex, new Vector2(geneGridPos.x, geneGridPos.y + pickupTween.interpolate(BOUNCE_AMOUNT)), SILVER);
+			drawTintedSprite(geneTex, new Vector2(geneGridPos.x, geneGridPos.y + pickupTween.interpolate(BOUNCE_AMOUNT)), PINK);
 		}
 		
 		// draw teleports
@@ -275,7 +275,7 @@ public class GameRenderer {
 			case BASIC: return GREEN;
 			case WATER: return BLUE;
 			case LAVA: return RED;
-			case TELEPORT: return SILVER;
+			case TELEPORT: return PINK;
 		}
 		
 		throw new RuntimeException("Unmapped blob kind: " + k);

@@ -117,6 +117,8 @@ public class FinalStageState implements GameState {
 		scene2 = false;
 		gameover = false;
 		pressedAnyKey = false;
+		
+		services.jukebox.play("music/Finding the Balance.mp3");
 	}
 	
 	@Override

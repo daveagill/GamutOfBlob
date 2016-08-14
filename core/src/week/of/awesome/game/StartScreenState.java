@@ -50,6 +50,8 @@ public class StartScreenState implements GameState {
 		megaBlobTex = services.gfxResources.newTexture("startScreenBlob.png");
 		
 		font = newFont(services.gfxResources, "trench.fnt");
+		
+		services.jukebox.play("music/Danse Morialta.mp3");
 	}
 
 	@Override

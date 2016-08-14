@@ -5,7 +5,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.utils.Disposable;
 
 public class JukeboxService implements Disposable {
-	private static final float MAX_VOLUME = 1f;
+	private static final float MAX_VOLUME = 0.5f;
 	private static final float FADE_SECS = 1f;
 	
 	private Music currentlyPlaying;

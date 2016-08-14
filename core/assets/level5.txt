@@ -1,4 +1,4 @@
-<level name="The control room...">
+<level name="The control room..." music="Finding the Balance.mp3">
 	<map>
 		. . . . . . . . . . . . . . . . . . . . . o o o o o o o o . . . . . . . . .
 		. . . . . . . . . . . . . . . . . . . . . o . . . o o o o o o * . . . . . .

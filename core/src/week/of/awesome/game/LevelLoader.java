@@ -21,6 +21,7 @@ public class LevelLoader {
 		Level level = new Level();
 		
 		level.name = xml.getAttribute("name");
+		level.music = xml.getAttribute("music");
 		
 		String mapData = xml.getChildByName("map").getText();
 		parseMap(mapData, level);

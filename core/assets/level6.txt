@@ -1,4 +1,4 @@
-<level name="Descent...">
+<level name="Descent..." music="Finding the Balance.mp3">
 	<map>
 		@ o .
 		. o .

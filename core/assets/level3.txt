@@ -1,4 +1,4 @@
-<level name="Beware the shadows...">
+<level name="Beware the shadows..." music="Marty Gots a Plan.mp3">
 	<map>
 		. . o o o @ . . .
 		. . o T . . . . .

@@ -1,19 +1,17 @@
-<level name="Three's a crowd...">
+<level name="Three's a crowd..." music="Marty Gots a Plan.mp3">
 	<map>
-		. . . . . T . .
 		o o o b o o o .
 		w . . o . . o .
-		w . . o . . o .
-		w w . @ . * o o
-		w * . o . * * r
+		w . . o . . o o
+		w w . @ . l l o
+		w * . o . * l r
 		w w . o . . . o
-		w . o o o . . .
+		w . o o o T . .
 		o o o o o w w o
 		l l . . . . . .
 		l l l l l * . .
 	</map>
 	<shadow-mask>
-		. . . . . . . .
 		x . . . . . . .
 		x . . . . . . .
 		x . . . . . . .
@@ -31,7 +29,6 @@
 		. . . . . . . .
 		. . . . . . . .
 		. . . . . . . .
-		. . . . . . . .
 		. . . . . . . o
 		. . . . . . . .
 		. . . . . . . .
@@ -39,7 +36,6 @@
 		x x x x . . . .
 	</shadow-mask>
 	<shadow-mask>
-		. . . . . . . .
 		. . . . . . . .
 		. . . . . . . .
 		. . . . . . x .
@@ -58,8 +54,9 @@
 		<text wait="5">\tyou'll be too afraid to move!</text>
 	</dialog>
 	<dialog trigger="7,5" blocksGameplay="true">
-		<text wait="1">A red one!</text>
-		<text wait="0">Unusually tolerant to\n</text>
-		<text wait="5">\tintense heat!</text>
+		<text wait="1">Red!</text>
+		<text wait="0">Seems to be unusually\n</text>
+		<text wait="0">\tresistant to extreme\n</text>
+		<text wait="5">\ttemperatures!</text>
 	</dialog>
 </level>

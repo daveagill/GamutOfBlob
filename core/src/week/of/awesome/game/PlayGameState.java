@@ -12,7 +12,6 @@ import com.badlogic.gdx.Input.Keys;
 
 import week.of.awesome.framework.GameState;
 import week.of.awesome.framework.Services;
-import week.of.awesome.game.AmbientMusic.Mood;
 import week.of.awesome.game.World.Direction;
 
 public class PlayGameState implements GameState {
@@ -24,7 +23,7 @@ public class PlayGameState implements GameState {
 	
 	private GameState gameOverState;
 	
-	private int levelNum = 1;
+	private int levelNum = 8;
 	private boolean levelComplete;
 	private boolean gameComplete;
 	
@@ -114,7 +113,8 @@ public class PlayGameState implements GameState {
 		buttonActivatedSound = newSound("buttonActivated.wav");
 		buttonDeactivatedSound = newSound("buttonDeactivated.wav");
 		
-		music.playNext(Mood.COMFORTABLE);
+		//music.playNext(Mood.COMFORTABLE);
+		music.playNext(world.getSoundtrack());
 	}
 
 	@Override
@@ -127,7 +127,10 @@ public class PlayGameState implements GameState {
 		
 		// decide which gamestate to advance to
 		if (levelComplete && fadeOut == 1f) {
-			if (gameComplete) { return gameOverState; }
+			if (gameComplete) {
+				levelNum = 1; // reset level for 2nd play through
+				return gameOverState;
+			}
 			
 			++levelNum;
 			return this; // next level
@@ -165,6 +168,10 @@ public class PlayGameState implements GameState {
 					switchBlobSound.play();
 				}
 				else if (keycode == Keys.EQUALS) {
+					eventHandler.onLevelComplete();
+				}
+				else if (keycode == Keys.R) {
+					--levelNum;
 					eventHandler.onLevelComplete();
 				}
 

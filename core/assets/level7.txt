@@ -1,4 +1,4 @@
-<level name="Through darkness...">
+<level name="Through darkness..." music="Lightless Dawn.mp3">
 	<map>
 		l l l l l l l l l
 		. l l l l l l l .

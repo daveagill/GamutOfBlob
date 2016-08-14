@@ -52,6 +52,10 @@ public class World {
 		numStarsCollected = 0;
 	}
 	
+	public String getSoundtrack() {
+		return level.music;
+	}
+	
 	public String getMapName() {
 		return level.name;
 	}
@@ -198,9 +202,9 @@ public class World {
 			
 			// gene pickups
 			boolean geneCollected = false;
-			geneCollected &= pickupGenes(activeWaterGenes, Kind.WATER, blobGridPos);
-			geneCollected &= pickupGenes(activeLavaGenes, Kind.LAVA, blobGridPos);
-			geneCollected &= pickupGenes(activeTeleGenes, Kind.TELEPORT, blobGridPos);
+			geneCollected |= pickupGenes(activeWaterGenes, Kind.WATER, blobGridPos);
+			geneCollected |= pickupGenes(activeLavaGenes, Kind.LAVA, blobGridPos);
+			geneCollected |= pickupGenes(activeTeleGenes, Kind.TELEPORT, blobGridPos);
 			if (geneCollected) {
 				events.onCollectedGene();
 			}
