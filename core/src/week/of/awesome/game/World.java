@@ -225,9 +225,11 @@ public class World {
 					events.onButtonActivated();
 				}
 			}
-			for (ShadowAndButtonState shadowsAndButton : shadowsAndButtons) {
-				if (shadowsAndButton.deactivateButton(oldBlobPos)) {
-					events.onButtonDeactivated();
+			if (!oldBlobPos.equals(blobGridPos)) {
+				for (ShadowAndButtonState shadowsAndButton : shadowsAndButtons) {
+					if (shadowsAndButton.deactivateButton(oldBlobPos)) {
+						events.onButtonDeactivated();
+					}
 				}
 			}
 			

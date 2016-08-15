@@ -23,7 +23,7 @@ public class PlayGameState implements GameState {
 	
 	private GameState gameOverState;
 	
-	private int levelNum = 8;
+	private int levelNum = 1;
 	private boolean levelComplete;
 	private boolean gameComplete;
 	
@@ -106,7 +106,7 @@ public class PlayGameState implements GameState {
 		world = new World(filenameForLevel(levelNum));
 		
 		blobMovedSound = newSound("blobMoved.wav");
-		blobTreadWaterSound = newSound("treadWater.wav");
+		//blobTreadWaterSound = newSound("treadWater.wav");
 		collectedGeneSound = newSound("collectedGene.wav");
 		collectedStarSound = newSound("collectedStar.wav");
 		switchBlobSound = newSound("switchBlob.wav");

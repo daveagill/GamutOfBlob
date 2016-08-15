@@ -1,4 +1,4 @@
-<level name="The lab..." music="Lightless Dawn.mp3">
+<level name="The underground lab..." music="Lightless Dawn.mp3">
 	<map>
 		@ . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 		o T . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

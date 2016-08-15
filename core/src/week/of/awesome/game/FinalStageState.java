@@ -30,10 +30,10 @@ public class FinalStageState implements GameState {
 	private static final float FADE_TO_WHITE_SPEED = 0.5f;
 	private static final float FADE_FROM_WHITE_SPEED = 0.25f;
 	private static final float FADE_TO_BLACK_SPEED = 0.5f;
-	private static final float TEXT_FADE_SPEED = 2f;
+	private static final float TEXT_FADE_SPEED = 0.5f;
 	
-	private static final String TOP_TEXT = "Go...";
-	private static final String BOTTOM_TEXT = "... be free!";
+	private static final String TOP_TEXT = "You're...";
+	private static final String BOTTOM_TEXT = "... Beautiful!";
 	private static final String GAME_OVER_TEXT = "Game Over";
 	
 	private Random rand = new Random(TimeUtils.millis());
@@ -320,7 +320,7 @@ public class FinalStageState implements GameState {
 		
 		GlyphLayout layout = new GlyphLayout();
 		layout.setText(font, GAME_OVER_TEXT);
-		services.gfx.drawFont(font, GAME_OVER_TEXT, services.gfx.getMidX() - layout.width/2, services.gfx.getMidY() - layout.height/2, 1f);
+		services.gfx.drawFont(font, GAME_OVER_TEXT, services.gfx.getMidX() - layout.width/2, services.gfx.getMidY() + layout.height/2, 1f);
 	}
 	
 	private static Texture newTexture(GraphicsResources gfxResources, String filename) {
