@@ -96,6 +96,6 @@ public class DialogState {
 	}
 	
 	public boolean isBlockingGameplay() {
-		return triggered && currText < config.text.size()-1 && config.blocksGameplay;
+		return triggered && (currText < config.text.size()-1 || fadingIn) && config.blocksGameplay;
 	}
 }

@@ -237,6 +237,7 @@ public class World {
 			for (TeleportConfig teleport : getTeleports()) {
 				if (blob.getKind() == Kind.TELEPORT && blobGridPos.equals(teleport.padPos)) {
 					blob.teleportTo(teleport.targetPos);
+					events.onTeleport();
 				}
 			}
 			

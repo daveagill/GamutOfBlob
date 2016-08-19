@@ -13,9 +13,12 @@
 		<text wait="2">\tvery buoyant...</text>
 	</dialog>
 	<dialog trigger="8,0" blocksGameplay="true">
-		<text wait="1">You evolved a friend!\n</text>
-		<text wait="0">\tPress SPACE to pay him</text>
-		<text wait="2">\ta visit</text>
+		<text wait="1">A DNA fragment!</text>
+		<text wait="0.5">And look...\n</text>
+		<text wait="1">\tIt made you a friend...</text>
+	</dialog>
+	<dialog trigger="8,0" blocksGameplay="true">
+		<text wait="4">Press SPACE to pay him a visit!</text>
 	</dialog>
 	<dialog trigger="1,0" blocksGameplay="true">
 		<text wait="2">Wow your friend can swim!\n</text>

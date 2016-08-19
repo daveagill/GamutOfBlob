@@ -37,24 +37,19 @@ public class PlayGameState implements GameState {
 	private World world;
 	
 	private Sound blobMovedSound;
-	private Sound blobTreadWaterSound;
 	private Sound collectedGeneSound;
 	private Sound collectedStarSound;
 	private Sound switchBlobSound;
 	private Sound buttonActivatedSound;
 	private Sound buttonDeactivatedSound;
+	private Sound teleportSound;
 	
 	
 	private WorldEvents eventHandler = new WorldEvents() {
 
 		@Override
 		public void onBlobMoved(Tile tile) {
-			//if (tile == Tile.WATER) {
-			//	blobTreadWaterSound.play();
-			//}
-			//else {
-				blobMovedSound.play(0.5f);
-			//}
+			blobMovedSound.play(0.5f);
 		}
 
 		@Override
@@ -83,6 +78,11 @@ public class PlayGameState implements GameState {
 		public void onButtonDeactivated() {
 			buttonDeactivatedSound.play();
 		}
+		
+		@Override
+		public void onTeleport() {
+			teleportSound.play();
+		}
 	};
 	
 	public void setGameOverState(GameState gameOverState) {
@@ -106,10 +106,10 @@ public class PlayGameState implements GameState {
 		world = new World(filenameForLevel(levelNum));
 		
 		blobMovedSound = newSound("blobMoved.wav");
-		//blobTreadWaterSound = newSound("treadWater.wav");
 		collectedGeneSound = newSound("collectedGene.wav");
 		collectedStarSound = newSound("collectedStar.wav");
 		switchBlobSound = newSound("switchBlob.wav");
+		teleportSound = newSound("teleport.wav");
 		buttonActivatedSound = newSound("buttonActivated.wav");
 		buttonDeactivatedSound = newSound("buttonDeactivated.wav");
 		

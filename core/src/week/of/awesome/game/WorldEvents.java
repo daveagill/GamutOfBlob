@@ -8,4 +8,6 @@ public interface WorldEvents {
 	
 	public void onButtonActivated();
 	public void onButtonDeactivated();
+	
+	public void onTeleport();
 }

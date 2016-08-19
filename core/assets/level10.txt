@@ -1,4 +1,4 @@
-<level name="Particle accelerator..." music="Bit Quest.mp3">
+<level name="Particle acceleration..." music="Bit Quest.mp3">
 	<map>
 		. w w w w w * w w w w w w w * w w w w w w * w w w w w w * w w w w w w * w w w w w w * w . . . . . . . . . . . . . . . . . . . . .
 		. . o b . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

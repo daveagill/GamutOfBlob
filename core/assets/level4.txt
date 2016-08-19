@@ -1,4 +1,4 @@
-<level name="Three's a crowd..." music="Marty Gots a Plan.mp3">
+<level name="A dark facility..." music="Marty Gots a Plan.mp3">
 	<map>
 		o o o b o o o .
 		w . . o . . o .
@@ -49,14 +49,14 @@
 	</shadow-mask>
 	<dialog trigger="7,2" blocksGameplay="true">
 		<text wait="1">Careful!</text>
-		<text wait="0">If you get\n</text>
-		<text wait="0">\ttrapped in the shadows\n</text>
-		<text wait="5">\tyou'll be too afraid to move!</text>
+		<text wait="0">If you trap a friend\n</text>
+		<text wait="0">\tin the shadows he'll be\n</text>
+		<text wait="5">\ttoo afraid to move!</text>
 	</dialog>
 	<dialog trigger="7,5" blocksGameplay="true">
-		<text wait="1">Red!</text>
-		<text wait="0">Seems to be unusually\n</text>
-		<text wait="0">\tresistant to extreme\n</text>
-		<text wait="5">\ttemperatures!</text>
+		<text wait="1">A red one!</text>
+		<text wait="0">Seems to be\n</text>
+		<text wait="0">\t unusually resistant to\n</text>
+		<text wait="5">\textreme temperatures!</text>
 	</dialog>
 </level>
