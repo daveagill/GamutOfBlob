@@ -5,10 +5,10 @@ A puzzle game created by David 'dmatter' Gill for "The Week of Awesome IV" Gamed
 
 
 ## CONTROLS
-Movement - WASD or ARROW KEYS
-Switch Blob - SPACE
-Reset Level - R
-Skip level - EQUALS (=)
+* Movement - WASD or ARROW KEYS
+* Switch Blob - SPACE
+* Reset Level - R
+* Skip level - EQUALS (=)
 
 ## CREDITS
 * ___PROGRAMMING___
